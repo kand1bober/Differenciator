@@ -1,35 +1,5 @@
 #include "../Headers/tree_functions.h"
 
-
-enum TreeErrors TreeCtor( struct Tree* tree )
-{
-    tree->root = (Node_t*)calloc( 1, sizeof( Node_t ) );
-
-    for(int i = 0; i < STRING_ARRAY_SIZE; i++)
-    {
-        strcpy( tree->variables[i].string, "empty" );
-        tree->variables[i].links_amount = 0;
-    }
-
-    strcpy(tree->variables[0].string, "it is root");
-    tree->variables[0].links_amount++;
-    tree->root->data.variable = tree->variables[0].string;
-
-    if(tree->root)
-    {
-        tree->status = GOOD_TREE;
-        return GOOD_CTOR;
-    }
-    else 
-    {
-        tree->status = BAD_TREE;
-        return BAD_CTOR;
-    }
-
-    return GOOD_CTOR;
-}
-
-
 enum TreeErrors TreeDtor( struct Tree* tree )
 {
     FreeTree( tree, tree->root );
@@ -38,38 +8,52 @@ enum TreeErrors TreeDtor( struct Tree* tree )
 }
 
 
-void FreeTree( struct Tree* tree, struct Node_t* node )
-{   
-    struct Node_t* left = node->left;
-    struct Node_t* right = node->right;
-
-    if( left != nullptr)
-    {
-        FreeTree(tree, left);
-    }
-
-    if( right != nullptr )
-    {
-        FreeTree(tree, right);
-    }
-
-    DeleteString( tree, node->data.variable );
-    free( node );
-}
- 
-
-enum TreeErrors CreateNode( struct Tree* tree, char* data, struct Node_t** new_node, enum Node_types type )
+//=========================== CREATE NODE =====================================
+enum TreeErrors CreateNode( struct Tree* tree, Data_t data, struct Node_t** new_node, enum Node_types type )
 {
     assert( tree );
     assert( new_node );
 
-    enum TreeErrors find_status = SAME_STRING_EXISTS; // just initialization
-    int string_position = 0;
-    find_status = FindString( tree, data, &string_position );
-
-    if( tree->root == nullptr ) //аналог TreeCtor
+    switch( (int)type )
     {
-        tree->root = (Node_t*)calloc( 1, sizeof( Node_t ) );
+        case NUM:
+        {
+            CreateNumNode( tree, data.num, new_node );
+            break;
+        }
+        case VAR:
+        {
+            CreateVarNode( tree, data.var, new_node );
+            break;  
+        }
+        case OP:
+        {
+            CreateOpNode( tree, data.op, new_node );
+            break;
+        }
+        default:
+        {
+            printf(RED "Error in node type\n" DELETE_COLOR);
+            break;
+        }
+    }
+
+    return GOOD_CREATE; //if something strange
+}
+
+
+enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t** new_node )
+{
+    (*new_node) = (Node_t*)calloc( 1, sizeof( Node_t ) );
+    (*new_node)->data.num = number;
+    (*new_node)->parent = nullptr;
+    (*new_node)->left = nullptr;
+    (*new_node)->parent = nullptr;
+    (*new_node)->type = NUM;
+
+    if( tree->root == nullptr )
+    {
+        tree->root = (*new_node);
         //-------------------
         for(int i = 0; i < STRING_ARRAY_SIZE; i++)
         {
@@ -77,15 +61,65 @@ enum TreeErrors CreateNode( struct Tree* tree, char* data, struct Node_t** new_n
             tree->variables[i].links_amount = 0;
         }
         //-------------------
+    }
+
+    return GOOD_CREATE;
+}   
+
+
+enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, struct Node_t** new_node )
+{
+    (*new_node) = (Node_t*)calloc( 1, sizeof( Node_t ) );
+    (*new_node)->data.op = operation;
+    (*new_node)->parent = nullptr;
+    (*new_node)->left = nullptr;
+    (*new_node)->parent = nullptr;
+    (*new_node)->type = OP;
+
+    if( tree->root == nullptr )
+    {
+        tree->root = (*new_node);
+        //-------------------
+        for(int i = 0; i < STRING_ARRAY_SIZE; i++)
+        {
+            strcpy( tree->variables[i].string, "empty" );
+            tree->variables[i].links_amount = 0;
+        }
+        //-------------------
+    }
+
+    return GOOD_CREATE;
+}
+
+
+enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t** new_node )
+{
+    enum TreeErrors find_status = SAME_STRING_EXISTS; // just initialization
+    int string_position = 0;
+    find_status = FindString( tree, variable, &string_position );
+
+    if( tree->root == nullptr ) //аналог TreeCtor
+    {
+        //-------------------
+        for(int i = 0; i < STRING_ARRAY_SIZE; i++)
+        {
+            strcpy( tree->variables[i].string, "empty" );
+            tree->variables[i].links_amount = 0;
+        }
+        //-------------------
+
+        tree->root = (Node_t*)calloc( 1, sizeof( Node_t ) );
         (*new_node) = tree->root;
+        (*new_node)->type = VAR;
+
         tree->variables[string_position].links_amount++; 
-        strcpy( tree->variables[string_position].string, data );
-        (*new_node)->data.variable = ( (tree->variables + string_position)->string );
+        strcpy( tree->variables[string_position].string, variable );
+        (*new_node)->data.var = ( (tree->variables + string_position)->string );
 
         (*new_node)->left = nullptr;
         (*new_node)->right = nullptr;
 
-        ON_DEBUG( printf(RED "created root \n" DELETE_COLOR); )
+            ON_DEBUG( printf(RED "created root \n" DELETE_COLOR); )
         return GOOD_CREATE;
     }   
     else 
@@ -93,12 +127,13 @@ enum TreeErrors CreateNode( struct Tree* tree, char* data, struct Node_t** new_n
         if( find_status == SAME_STRING_EXISTS )
         {
             *new_node = (Node_t*)calloc( 1, sizeof( Node_t ) );
+            (*new_node)->type = VAR;
             tree->variables[string_position].links_amount++;
 
-            (*new_node)->data.variable = ( (tree->variables + string_position)->string );
+            (*new_node)->data.var = ( (tree->variables + string_position)->string );
             (*new_node)->left = nullptr;
             (*new_node)->right = nullptr;
-            ON_DEBUG( printf(RED "created with same string\n" DELETE_COLOR); )
+                ON_DEBUG( printf(RED "created with same string\n" DELETE_COLOR); )
             return GOOD_CREATE;
         }
         else 
@@ -106,24 +141,26 @@ enum TreeErrors CreateNode( struct Tree* tree, char* data, struct Node_t** new_n
             if( find_status == FOUND_EMPTY_STRING )
             {
                 *new_node = (Node_t*)calloc( 1, sizeof( Node_t ) );
-                strcpy( tree->variables[string_position].string, data );
+                (*new_node)->type = VAR;
+                strcpy( tree->variables[string_position].string, variable );
                 tree->variables[string_position].links_amount++;
 
-                (*new_node)->data.variable = (tree->variables + string_position)->string;
+                (*new_node)->data.var = (tree->variables + string_position)->string;
                 (*new_node)->left = nullptr;
                 (*new_node)->right = nullptr;
-                ON_DEBUG( printf(RED "created with a new string\n" DELETE_COLOR); )
+                    ON_DEBUG( printf(RED "created with a new string\n" DELETE_COLOR); )
+
+                return GOOD_CREATE;
             }
             else
             {
-                ON_DEBUG( printf(RED "don't have free space in memory for a new string\n" DELETE_COLOR); )
+                    ON_DEBUG( printf(RED "don't have free space in memory for a new string\n" DELETE_COLOR); )
                 return BAD_CREATE;
             }
         }
     }
-
-    return BAD_CREATE; //if something strange
-}
+}   
+//=============================================================================
 
 
 //---------------------------TREE STRINGS FUNCTIONS----------------------------
@@ -368,7 +405,29 @@ enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct No
 }
 
 
-enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node ) 
+void FreeTree( struct Tree* tree, struct Node_t* node )
+{   
+    struct Node_t* left = node->left;
+    struct Node_t* right = node->right;
+
+    if( left != nullptr)
+    {
+        FreeTree(tree, left );
+    }
+
+    if( right != nullptr )
+    {
+        FreeTree(tree, right);
+    }
+
+    if( node->type == VAR )
+        DeleteString( tree, node->data.var );
+
+    free( node );
+}
+
+
+enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type ) 
 {
     if( node )
     {
@@ -382,7 +441,8 @@ enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node )
             {
                 tmp_parent->left = nullptr;
                 
-                DeleteString( tree, node->data.variable );
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
 
                 free(node);
             }
@@ -390,7 +450,8 @@ enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node )
             {
                 tmp_parent->right = nullptr;
 
-                DeleteString( tree, node->data.variable );
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
 
                 free(node);
             }
@@ -404,12 +465,16 @@ enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node )
             if( tmp_parent->left == node )
             {
                 tmp_parent->left = nullptr;
-                DeleteString( tree, node->data.variable );
+
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
             }
             else if( tmp_parent->right == node )
             {
                 tmp_parent->right = nullptr;
-                DeleteString( tree, node->data.variable );
+
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
             }
             
             FreeTree( tree, node );
@@ -423,12 +488,16 @@ enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node )
             if( node->parent->left == node )
             {
                 node->parent->left = nullptr;
-                DeleteString( tree, node->data.variable );
+
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
             }
             else if(  node->parent->right == node )
             {
                 node->parent->right = nullptr;
-                DeleteString( tree, node->data.variable );
+
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
             }
 
             FreeTree( tree, node );
@@ -442,12 +511,16 @@ enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node )
             if( node->parent->left == node )
             {
                 node->parent->left = nullptr;
-                DeleteString( tree, node->data.variable );
+
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
             }
             else if(  node->parent->right == node )
             {
                 node->parent->right = nullptr;
-                DeleteString( tree, node->data.variable );
+
+                if( node_type == VAR )
+                    DeleteString( tree, node->data.var );
             }
 
             FreeTree( tree, node );
@@ -465,16 +538,94 @@ enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node )
 }
 
 
-enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer)
+enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type )
 {
     ON_DEBUG( printf("need to find: %s\n", to_find); )
-    FindNode(tree->root, to_find, answer);
+
+    switch( (int)node_type )
+    {
+        case NUM:
+        {
+            FindNumNode( tree->root, to_find.num, answer );
+            break;
+        }
+        case VAR:
+        {
+            FindVarNode( tree->root, to_find.var, answer );
+            break;
+        }
+        case OP:
+        {
+            FindOpNode( tree->root, to_find.op, answer );
+            break;
+        }
+        default:
+        {
+            printf(RED "Smth wrong in node_typrei in FindNode\n" DELETE_COLOR);
+            break;
+        }
+    }
+    
 
     return GOOD_FIND;
 }
 
 
-void FindNode( struct Node_t* node_search, union Data_t to_find, struct Node_t** answer )
+enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct Node_t** answer )
+{
+    struct Node_t* left_search = node_search->left;
+    struct Node_t* right_search = node_search->right;
+
+    if( fabs( node_search->data.op - to_find ) > EPSILON )
+    {
+        if( left_search != nullptr )
+        {
+            FindNumNode( left_search, to_find, answer );
+        }
+
+        if( right_search != nullptr )
+        {
+            FindNumNode( right_search, to_find, answer );
+        }
+    }
+    else 
+    {
+        *answer = node_search;
+        return GOOD_FIND;
+    }
+
+    return BAD_FIND;
+}
+
+
+enum TreeErrors FindOpNode( struct Node_t* node_search, char to_find, struct Node_t** answer )
+{
+    struct Node_t* left_search = node_search->left;
+    struct Node_t* right_search = node_search->right;
+
+    if( node_search->data.op != to_find )
+    {
+        if( left_search != nullptr )
+        {
+            FindOpNode( left_search, to_find, answer );
+        }
+
+        if( right_search != nullptr )
+        {
+            FindOpNode( right_search, to_find, answer );
+        }
+    }
+    else 
+    {
+        *answer = node_search;
+        return GOOD_FIND;
+    }
+
+    return BAD_FIND;
+}
+
+
+enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct Node_t** answer )
 {
         ON_DEBUG( printf(YELLOW "====== Start of FindNode ======\n" DELETE_COLOR); )
     struct Node_t* left_search = node_search->left;
@@ -482,18 +633,18 @@ void FindNode( struct Node_t* node_search, union Data_t to_find, struct Node_t**
         ON_DEBUG( printf(PURPLE "    right: %p\n" DELETE_COLOR, node_search->right); )
     struct Node_t* right_search = node_search->right;
 
-    if( strcmp( node_search->data.variable, to_find.variable ) != 0 )
+    if( strcmp( node_search->data.var, to_find ) != 0 )
     {
         if( left_search != nullptr)
         {
             ON_DEBUG( printf(PURPLE "        going left\n" DELETE_COLOR); )
-            FindNode( left_search, to_find, answer);
+            FindVarNode( left_search, to_find, answer);
         }
 
         if( right_search != nullptr )
         {   
             ON_DEBUG( printf(PURPLE "        going right\n" DELETE_COLOR); )
-            FindNode( right_search, to_find, answer );
+            FindVarNode( right_search, to_find, answer );
         }
     }
     else 
@@ -501,7 +652,9 @@ void FindNode( struct Node_t* node_search, union Data_t to_find, struct Node_t**
         ON_DEBUG( printf("node: %p, data: %s\n", node_search, node_search->data); )
         *answer = node_search;
             ON_DEBUG( printf(YELLOW "====== End of FindNode ======\n" DELETE_COLOR); )
-        return;
+        return GOOD_FIND;
     }
+
+    return BAD_FIND;
 }
 

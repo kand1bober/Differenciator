@@ -27,6 +27,14 @@ enum Node_types
     OP = 3,
 };
 
+enum Operations
+{
+    k_Add = '+',
+    k_Sub = '-',
+    k_Mul = '*',
+    k_Div = '/',
+};
+
 struct SmartString
 {
     char string[STRING_SIZE];
@@ -35,9 +43,9 @@ struct SmartString
 
 union Data_t
 {
-    double number;
-    char* variable; //только указатель на нужную строку
-    int operation;
+    double num;
+    char* var; //только указатель на нужную строку
+    Operations op;
 };  
 
 struct Node_t
@@ -129,14 +137,20 @@ enum TreeErrors TreeDtor( struct Tree* tree );
 void FreeTree( struct Tree* tree, struct Node_t* node ); //-------- recursive
 
 //--------------------------------OPERATIONS WITH NODES----------------------------------
-enum TreeErrors CreateNode( struct Tree* tree, char* data, struct Node_t** new_node, enum Node_types type );
-enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer);
-enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node );
+enum TreeErrors CreateNode( struct Tree* tree, Data_t data, struct Node_t** new_node, enum Node_types type );
+enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t** new_node );
+enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, struct Node_t** new_node );
+enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t** new_node );
+
+enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
 enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
 enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
 
-//----------------------------RECURSIVE FUNCTIONS----------------------------------------
-void FindNode( struct Node_t* node_search, union Data_t to_find, struct Node_t** answer );
+//----------------------------FIND FUNCTIONS----------------------------------------
+enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type ); //TODO: переделать 
+enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct Node_t** answer );
+enum TreeErrors FindOpNode( struct Node_t* node_search, char to_find, struct Node_t** answer );
+enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct Node_t** answer );
 
 //---------------------------- STRING FUCTIONS ------------------------------------------
 enum TreeErrors FindString( struct Tree* tree, char* to_find, int* string_position );

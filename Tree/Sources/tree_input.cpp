@@ -80,7 +80,13 @@ void NodeFromData( struct File_text* dump, struct Tree* tree, struct Node_t* nod
         if( strcmp( utility->result_2, "nuull" ) != 0 )
         {
             ON_DEBUG( printf(YELLOW "again left\n" DELETE_COLOR); )
-            CreateNode( tree, utility->result_2, &left, VAR );
+
+            //--------Conversion to union---------
+            union Data_t result_2_copy;
+            result_2_copy.var = utility->result_2;
+            //------------------------------------
+
+            CreateNode( tree, result_2_copy, &left, VAR );
             InsertLeave( tree, node, LEFT, left );
             ON_DEBUG(
                         Output( dump, tree ); 
@@ -128,7 +134,13 @@ void NodeFromData( struct File_text* dump, struct Tree* tree, struct Node_t* nod
         if( strcmp( utility->result_2, "nuull" ) != 0)
         {
             ON_DEBUG( printf(YELLOW "again left\n" DELETE_COLOR); )
-            CreateNode( tree, utility->result_2, &right, VAR );
+
+            //--------Conversion to union---------
+            union Data_t result_2_copy;
+            result_2_copy.var = utility->result_2;
+            //------------------------------------
+
+            CreateNode( tree, result_2_copy, &right, VAR );
             InsertLeave( tree, node, RIGHT, right );
             ON_DEBUG(
                         Output( dump, tree ); 

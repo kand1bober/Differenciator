@@ -15,12 +15,15 @@ const char default_pointer_color[20] = "#FFE9C7";
 const char pointer_left_color[20] =    "#9ACD32"; 
 const char pointer_right_color[20] =   "#FF2B00";
 
-const char fillcolor[20] = "#FFA9B8";
-const char bgcolor[20] =   "#8B4513";
-const char fontcolor[20] = "#FFE9C7";
+const char var_fillcolor[20] = "#ff6699"; //#FFA9B8
+const char num_fillcolor[20] = "#34cb34";
+const char op_fillcolor[20] = "#9966FF";
+
+const char bgcolor[20] =   "#ffd480";
+const char fontcolor[20] = "#FFFFFF";
 
 const char fontname[30] =     "Verdana";
-const char graph_header[30] = "Binary tree";
+const char graph_header[30] = "Differenciator";
 
 
 struct File_text

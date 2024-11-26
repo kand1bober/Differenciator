@@ -18,34 +18,35 @@ int main()
 
 //----------------------------------------- WORK WIHOUT FILE INPUT ---------------------------------
 
-    // //--------------------------INITIALIZING WORK WITH NODES---------------------
+    //--------------------------INITIALIZING WORK WITH NODES---------------------
         printf(RED "--------- Init -----------\n" DELETE_COLOR);
-        char data[STRING_SIZE] = "";
+        union Data_t data = {};
         struct Node_t* find_node = nullptr; //
         struct Node_t* tmp_node = nullptr;  //shold be used everytime you need to create a new node, otherwise it will be seg-fault
-    // //---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
 
-    // //---------------------------------
-    //     strcpy( data, "14.88" );
-    // CreateNode( &my_tree, data, &tmp_node );
-    // InsertLeave( &my_tree, my_tree.root, LEFT, tmp_node );
-    // //---------------------------------
-    // printf(RED "--------- 1 -----------\n" DELETE_COLOR);
-    //     strcpy( data, "7.77" );
-    // CreateNode( &my_tree, data, &tmp_node );     
-    //     strcpy( data, "14.88" );
-    // Find( &my_tree, data, &find_node );
+    //---------------------------------
+    data.var = (char*)"x";
+    // data.num = 777;
+
+    CreateNode( &my_tree, data, &tmp_node, VAR );
+    InsertLeave( &my_tree, my_tree.root, RIGHT, tmp_node );
+    //---------------------------------
+    printf(RED "--------- 1 -----------\n" DELETE_COLOR);
+        data.num = 7.77;
+    CreateNode( &my_tree, data, &tmp_node, NUM );     
+        data.var = (char*)"x";
+    Find( &my_tree, data, &find_node, VAR );
+    InsertLeave( &my_tree, find_node, RIGHT, tmp_node );
+    // --------------------------------
+    printf(RED "--------- 2 -----------\n" DELETE_COLOR);
+        data.op = k_Add;
+    CreateNode( &my_tree, data, &tmp_node, OP );
+       data.var = (char*)"x";
+    // Find( &my_tree, data, &find_node,  );
     // printf("find_node: %p\n", find_node);
-    // InsertLeave( &my_tree, find_node, RIGHT, tmp_node );
-    // // --------------------------------
-    // printf(RED "--------- 2 -----------\n" DELETE_COLOR);
-    //     strcpy( data, "6.66" );
-    // CreateNode( &my_tree, data, &tmp_node );
-    //     strcpy( data, "14.88" );
-    // Find( &my_tree, data, &find_node );
-    // printf("find_node: %p\n", find_node);
-    // InsertNode( find_node->right, nullptr, tmp_node);
-    // // InsertNode( nullptr, find_node->right, tmp_node);
+    InsertNode( find_node->right, nullptr, tmp_node );
+    
     // // -------------------------------
 
     // //-------------------------------
@@ -62,7 +63,7 @@ int main()
 
 
     //-------------SAVING TREE DATA--------------
-    TreeData( &my_tree, &tree_output );
+    // TreeData( &my_tree, &tree_output );
     // -------------------------------------------
 
     //-----------------PRINTING------------------

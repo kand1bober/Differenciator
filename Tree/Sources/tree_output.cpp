@@ -26,18 +26,21 @@ enum TreeErrors StartOutput( struct File_text* file )
 
     // printf("Name of output file with code: %s\n", code_filepath); 
 
-    //============================== GRAPH FILE ====================================
+    //---------------GRAPH FILE------------------
     file->stream = fopen(code_filepath, "w");
+    //-------------------------------------------
+
+    //---------------------Write node settings------------------------
     fprintf(file->stream, "digraph G\n{\nlabel=\"%s\";\nlabelloc=\"t\";\nfontsize=30\nfontname=\"%s\";\nfontcolor=\"%s\"\n"
     "\nrankdir=TB;size=\"200,300\";bgcolor=\"%s\";\n", graph_header, fontname, fontcolor, bgcolor); //splines=polyline
-    //==============================================================================
+    //----------------------------------------------------------------
 
     
-    //============================== HTML FIlE =====================================
+    //--------------------------- HTML FIlE --------------------------
     FILE* html_stream = fopen( html_filepath, "w" );
     fprintf(html_stream, "<img src=\"%s\"  alt=\"MyGraph\" width=\"1300px\" height=\"900px\">", image_filepath);
     fclose( html_stream );
-    //==============================================================================
+    //----------------------------------------------------------------
 
     return GOOD_START_OUTPUT;
 }
@@ -72,37 +75,61 @@ void WriteEdge( struct File_text* file, struct Node_t* node )
     struct Node_t* right = node->right;
 
     int node_type = node->type;
-    // switch( node_type )
-    // {
-    //     case NUM:
-    //     {
+    switch( node_type )
+    {
+        case NUM:
+        {
+            fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } | { <parent%p> parent: %p } | { <data%p> data: %lf} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ]; ",
+                            node, num_fillcolor, default_pointer_color, node, node, node, node->parent, node, node->data.num, node, left, node, right );
+            break;
+        }
+        case VAR:
+        {
+            fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } | { <parent%p> parent: %p } | { <data%p> data: %s} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ]; ",
+                            node, var_fillcolor, default_pointer_color, node, node, node, node->parent, node, node->data.var, node, left, node, right );
+            break;
+        }
+        case OP:
+        {
+            fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } | { <parent%p> parent: %p } | { <data%p> data: %c} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ]; ",
+                            node, op_fillcolor, default_pointer_color, node, node, node, node->parent, node, node->data.op, node, left, node, right );
+            break;
+        }
+        default:
+        {
 
-    //         break;
-    //     }
-    //     case VAR:
-    //     {
-
-    //         break;
-    //     }
-    //     case OP:
-    //     {
-
-    //         break;
-    //     }
-    //     default:
-    //     {
-
-    //         break;
-    //     }
-    // }
-
-    fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } | { <parent%p> parent: %p } | { <data%p> data: %s} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ]; ",
-                            node, fillcolor, default_pointer_color, node, node, node, node->parent, node, node->data.variable, node, left, node, right );
+            break;
+        }
+    }
 
     if( (node->left) != nullptr )
     {
-        fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %s} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
-        left, fillcolor, default_pointer_color, left, left, left, left->parent, left, left->data.variable, left, left->left, left, left->right);
+        switch( node->left->type )
+        {
+            case NUM:
+            {
+                fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %lf} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
+                                left, num_fillcolor, default_pointer_color, left, left, left, left->parent, left, left->data.num, left, left->left, left, left->right);
+                break;
+            }
+            case VAR:
+            {
+                fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %s} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
+                                left, var_fillcolor, default_pointer_color, left, left, left, left->parent, left, left->data.var, left, left->left, left, left->right);
+                break;
+            }
+            case OP:
+            {
+                fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %c} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
+                                left, op_fillcolor, default_pointer_color, left, left, left, left->parent, left, left->data.op, left, left->left, left, left->right);
+                break;
+            }
+            default:
+            {
+
+                break;
+            }
+        }
 
         fprintf(file->stream, "node_%p: <left%p> -> node_%p [color = \"%s\", arrowsize = 1] ;\n", node, node, left, pointer_left_color );    
         WriteEdge( file, node->left );
@@ -110,8 +137,31 @@ void WriteEdge( struct File_text* file, struct Node_t* node )
 
     if( (node->right) != nullptr )
     {
-        fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %s} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
-        right, fillcolor, default_pointer_color, right, right, right, right->parent, right, right->data.variable, right, right->left, right, right->right );
+        switch( node->right->type )
+        {
+            case NUM:
+            {
+                fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %lf} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
+                                right, num_fillcolor, default_pointer_color, right, right, right, right->parent, right, right->data.num, right, right->left, right, right->right );
+                break;
+            }
+            case VAR:
+            {
+                fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %s} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
+                                right, var_fillcolor, default_pointer_color, right, right, right, right->parent, right, right->data.var, right, right->left, right, right->right );
+                break;
+            }
+            case OP:
+            {
+                fprintf(file->stream, " node_%p [shape=record,style=\"rounded,filled\",fillcolor=\"%s\",color=\"%s\",label=\" { { <curr%p> curr: %p } { <parent%p> parent: %p } | | { <data%p> data: %c} | { { <left%p> L: %p } | { <right%p> R: %p } } } \" ];",
+                                right, op_fillcolor, default_pointer_color, right, right, right, right->parent, right, right->data.op, right, right->left, right, right->right );
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
 
         fprintf(file->stream, "node_%p: <right%p> -> node_%p [color = \"%s\", arrowsize = 1] ;\n", node, node, right, pointer_right_color );    
         WriteEdge( file, node->right );
@@ -193,7 +243,7 @@ enum TreeErrors CollectTreeData( struct Node_t* node, struct File_text* file, in
     MakeOffset( file, count_offset );
     fprintf( file->stream, "{\n");
     MakeOffset( file, count_offset );
-    fprintf( file->stream, "\"%s\"\n", node->data);
+    fprintf( file->stream, "\"%s\"\n", node->data.var); // TODO: разветвление на варианты
 
     if( left != nullptr )
     {
