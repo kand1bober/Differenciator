@@ -32,6 +32,7 @@ struct File_text
 {
     FILE* stream;
     size_t stream_size;
+    char* buffer;
 };
 
 //-------------------------------------------------------------------

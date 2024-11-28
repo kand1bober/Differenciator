@@ -6,7 +6,7 @@ int old_p = 0;
 char s[200] = "";
 
 //---------------------------------------------------------------------------------------
-enum TreeErrors MakeTreeData( struct File_text* dump, struct File_input* file, struct Tree* tree )
+enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, struct Tree* tree )
 {
     ON_DEBUG( printf(RED "====== START MakeTreeData ======\n" DELETE_COLOR); )
 
@@ -14,12 +14,13 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_input* file, s
     char filepath[256] = {};
     GetFilePath( filepath, tree_data_name_old);
     FILE* stream = fopen( filepath, "r" );
+
     struct stat file_info = {};
     stat( filepath, &file_info );
     unsigned long int size_of_stream = (unsigned long int)file_info.st_size;
-    ON_DEBUG( printf(YELLOW "size of file: %lu\n" DELETE_COLOR, size_of_stream); )
-    file->size_of_file = size_of_stream;
-    if( file->size_of_file > 0 )
+    file->stream_size = size_of_stream;
+
+    if( file->stream_size > 0 )
     {
         file->buffer = (char*)calloc( size_of_stream + 1, sizeof(char) );
         fseek(stream, sizeof(char) * 0L,  SEEK_SET);

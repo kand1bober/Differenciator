@@ -2,13 +2,20 @@
 
 int main()
 {
+    //TODO: все заменится на Run();
+
     //=========================================================================
 
     //------------Initialize------------
-    struct File_input tree_input = {}; //for input
+    struct File_text tree_input = {}; //for input
     struct File_text tree_output = {};   // for output
     struct File_text graph_file = {};  //for inpit
     struct Tree my_tree = {};
+
+    struct File_text diff_tree_input = {}; 
+    struct File_text diff_tree_output = {};   
+    struct File_text diff_graph_file = {};  
+    struct Tree diff_tree = {};
 
     // MakeTreeData( &graph_file, &tree_input, &my_tree );
 
@@ -20,34 +27,42 @@ int main()
     //-----------------------------------------------------------
 
     //---------------------------------
-    data.op = k_Add;
+    data.op = kAdd;
     CreateNode( &my_tree, data, &tmp_node, OP );
 
 
         data.num = 7.77;
     CreateNode( &my_tree, data, &tmp_node, NUM );     
-        data.op = k_Add;
+        data.op = kAdd;
     Find( &my_tree, data, &find_node, OP );
     InsertLeave( &my_tree, find_node, RIGHT, tmp_node );
 
-        data.op = k_Mul;
+        data.op = kDiv;
     CreateNode( &my_tree, data, &tmp_node, OP );
-        data.op = k_Add;
+        data.op = kAdd;
     Find( &my_tree, data, &find_node, OP );
     InsertLeave( &my_tree, find_node, LEFT, tmp_node );
 
        data.var = (char*)"x";
     CreateNode( &my_tree, data, &tmp_node, VAR );
-        data.op = k_Mul;
-    Find( &my_tree, data, &find_node, OP );
-    InsertLeave( &my_tree, find_node, RIGHT, tmp_node );
-
-           data.num = 17.7;
-    CreateNode( &my_tree, data, &tmp_node, NUM );
-        data.op = k_Mul;
+        data.op = kDiv;
     Find( &my_tree, data, &find_node, OP );
     InsertLeave( &my_tree, find_node, LEFT, tmp_node );
 
+    //        data.num = 17.7;
+    // CreateNode( &my_tree, data, &tmp_node, NUM );
+    //     data.op = kMul;
+    // Find( &my_tree, data, &find_node, OP );
+    // InsertLeave( &my_tree, find_node, LEFT, tmp_node );
+
+        data.var = (char*)"y";
+    CreateNode( &my_tree, data, &tmp_node, VAR);
+        data.op = kDiv;
+    Find( &my_tree, data, &find_node, OP );
+    InsertLeave( &my_tree, find_node, RIGHT, tmp_node );
+
+
+    Differentiate( &my_tree, &diff_tree );
 
 
     //-------------SAVING TREE DATA--------------
@@ -57,7 +72,8 @@ int main()
     //-----------------PRINTING------------------
     if(my_tree.status == GOOD_TREE)
     {
-        Output( &graph_file, &my_tree);
+        Output( &diff_graph_file, &diff_tree);
+        // Output( &graph_file, &my_tree);
     }
     else 
     {
@@ -65,11 +81,9 @@ int main()
     }
     //-------------------------------------------
 
-
-    // Differentiate( );
-
     
     TreeDtor( &my_tree );
+    TreeDtor( &diff_tree );
 
     //=========================================================================
 

@@ -2,6 +2,8 @@
 
 enum TreeErrors TreeDtor( struct Tree* tree )
 {
+    assert( tree );
+
     FreeTree( tree, tree->root );
 
     return GOOD_DTOR;

@@ -2,7 +2,7 @@
 #include "../Headers/tree_output.h"
 #include "../Headers/tree_input.h"
 
-// /*
+/*
 int main()
 {
     //------------Initialize------------
@@ -22,7 +22,7 @@ int main()
         struct Node_t* find_node = nullptr; //
         struct Node_t* tmp_node = nullptr;  //
     //---------------------------------------------------------------------------
-/*
+
     //---------------------------------
     data.op = k_Add;
     CreateNode( &my_tree, data, &tmp_node, OP );
@@ -40,7 +40,7 @@ int main()
         data.op = k_Add;
     Find( &my_tree, data, &find_node, OP );
     InsertLeave( &my_tree, find_node, LEFT, tmp_node );
-*/    
+   
 //----------------------------------------------------------------------------------------------
 
     //-------------SAVING TREE DATA--------------
@@ -62,4 +62,4 @@ int main()
     return 0;
 }
 
-// */
+*/

@@ -6,7 +6,11 @@
 
 enum DiffInfo
 {
-    
+    GOOD_DIFF = 234,
+    BAD_DIFF = 235,
 };
+
+enum DiffInfo Differentiate( struct Tree* origin_tree, struct Tree* diff_tree );
+struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* diff_tree );
 
 #endif
