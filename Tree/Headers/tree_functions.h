@@ -149,7 +149,7 @@ enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Dire
 //----------------------------FIND FUNCTIONS----------------------------------------
 enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type ); //TODO: переделать 
 enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct Node_t** answer );
-enum TreeErrors FindOpNode( struct Node_t* node_search, char to_find, struct Node_t** answer );
+enum TreeErrors FindOpNode( struct Node_t* node_search, enum Operations to_find, struct Node_t** answer );
 enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct Node_t** answer );
 
 //---------------------------- STRING FUCTIONS ------------------------------------------

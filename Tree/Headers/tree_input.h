@@ -29,4 +29,12 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_input* file, s
 void NodeFromData( struct File_text* dump, struct Tree* tree, struct Node_t* node, struct Parser* utility );
 void InputFileNameChange( void );
 
+//-------------PAAAAARSER BY DED----------------
+int GetG();
+int GetN();
+int GetE();
+int GetT();
+int GetP();
+
+
 #endif

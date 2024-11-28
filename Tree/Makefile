@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -fsanitize=address,undefined -D _DEBUG -O0 -Wall -Wextra
+CFLAGS = -fsanitize=address,undefined -D _DEBUG -O0 -Wall -Wextra -Werror=return-type
 
 SOURCES_DIR = Sources
 

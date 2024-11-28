@@ -11,8 +11,7 @@ int CheckSize_t( size_t number )
 
 char* GetFilePath( char* filepath, const char* filename )
 {
-    const char* directory = "/home/vyacheslav/Differenciator/Tree/";
-    sprintf(filepath, "%s%s", directory, filename);
+    sprintf(filepath, "%s%s", project_directory, filename);
 
     return filepath;
 }

@@ -1,7 +1,9 @@
 #include "../Headers/tree_input.h"
 #include "../Headers/tree_functions.h"
-// #include <mutex>
-// #include <features.h>
+
+int p = 0;
+int old_p = 0;
+char s[200] = "";
 
 //---------------------------------------------------------------------------------------
 enum TreeErrors MakeTreeData( struct File_text* dump, struct File_input* file, struct Tree* tree )
@@ -22,152 +24,116 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_input* file, s
         file->buffer = (char*)calloc( size_of_stream + 1, sizeof(char) );
         fseek(stream, sizeof(char) * 0L,  SEEK_SET);
         fread( (void*)file->buffer, sizeof(char), size_of_stream, stream);
+
+        strcpy( s, file->buffer );
+        printf("%s\n\n", s);
+
+        int val = 0;
+        val = GetG();
+
+        printf(YELLOW "val: %d\n" DELETE_COLOR, val );
+
+
         fclose(stream);
-        //-----------------------------------------------
-
-        //-----------------PARSER START------------------
-        struct Parser utility = {};
-        utility.string = file->buffer;
-        utility.delim_1 = "{}";
-        utility.delim_2 = "\"";
-        utility.delim_3 = " }";
-        utility.result_1 = nullptr;
-        utility.result_2 = nullptr;
-        utility.track_1 = utility.string;
-        utility.track_2 = nullptr;
-
-        NodeFromData( dump, tree, tree->root, &utility );
-        //-----------------------------------------------
-
         free( file->buffer );
-        
-        ON_DEBUG( printf(RED "====== END MakeTreeData ======\n" DELETE_COLOR); )
-        return GOOD_INPUT;
-
-    }
-    else 
-    {
-        printf(RED "File with tree description should\n"
-        "at least contain first node desription" DELETE_COLOR);
-        fclose( stream );
-        return BAD_INPUT;
     }
 
+    return GOOD_INPUT;
 }
 //---------------------------------------------------------------------------------------
 
-
-//--------------------------------RECURSIVE----------------------------------------------
-void NodeFromData( struct File_text* dump, struct Tree* tree, struct Node_t* node, struct Parser* utility )
+int GetG()
 {
-    struct Node_t* left = nullptr;
-    struct Node_t* right = nullptr;
-
-    //----------------------------------------------------------------------
-    utility->track_2 = nullptr;
-    utility->result_1 = nullptr;
-    utility->result_2 = nullptr;
-    //---------------------------LEFT SON-----------------------------------
-    //-------GETTING STRING------
-    if ( (utility->result_1 = strtok_r( utility->track_1, utility->delim_1, &utility->track_1)) != nullptr )
+    int val = GetE();
+    
+    if( s[p] != '$' )
     {
-            ON_DEBUG( printf(YELLOW "track_1: %s\n" DELETE_COLOR, utility->track_1); )
-        strtok_r( utility->track_1, utility->delim_2, &utility->track_2 );
-        utility->result_2 = strtok_r( nullptr, utility->delim_2, &utility->track_2);
-            ON_DEBUG( printf(PURPLE "left branch command: %s\ntrack_2: %s\n" DELETE_COLOR, utility->result_2, utility->track_2); )
-        //---------------------------
-
-        if( strcmp( utility->result_2, "nuull" ) != 0 )
-        {
-            ON_DEBUG( printf(YELLOW "again left\n" DELETE_COLOR); )
-
-            //--------Conversion to union---------
-            union Data_t result_2_copy;
-            result_2_copy.var = utility->result_2;
-            //------------------------------------
-
-            CreateNode( tree, result_2_copy, &left, VAR );
-            InsertLeave( tree, node, LEFT, left );
-            ON_DEBUG(
-                        Output( dump, tree ); 
-                        PAUSE    
-                    )
-            //----------------------------------
-            utility->track_1 = utility->track_2;
-            //----------------------------------
-            NodeFromData( dump, tree, left, utility );
-
-        }
-        else 
-        {
-            node->left = nullptr;
-            strtok_r( utility->track_2, utility->delim_3, &utility->track_2 );
-        }
+        printf(RED "Syntax error in GetG\n" DELETE_COLOR);
+        exit(0);
     }
-    else 
-    {
-        return;
-    }
-
-    //---------------------------------------
-    utility->track_1 = utility->track_2;
-    utility->track_2 = nullptr;
-    utility->result_1 = nullptr;
-    utility->result_2 = nullptr;
-    //---------------------------------------
-
-    //---------------------------RIGHT SON----------------------------------
-    //-------GETTING STRING------
-    if ( (utility->result_1 = strtok_r( utility->track_1, utility->delim_1, &utility->track_1)) != nullptr ) 
-    {
-        //---------------
-        if( utility->track_1[0] == '\0') 
-        {
-            ON_DEBUG( printf("\n\nEEENNNDDD\n\n"); )
-            return;
-        }
-        //---------------
-        strtok_r( utility->track_1, utility->delim_2, &utility->track_2 );
-        utility->result_2 = strtok_r( nullptr, utility->delim_2, &utility->track_2);
-            ON_DEBUG( printf(PURPLE "rught branch command: %s\ntrack_2: %s\n" DELETE_COLOR, utility->result_2, utility->track_2); )
-        //---------------------------
-        if( strcmp( utility->result_2, "nuull" ) != 0)
-        {
-            ON_DEBUG( printf(YELLOW "again left\n" DELETE_COLOR); )
-
-            //--------Conversion to union---------
-            union Data_t result_2_copy;
-            result_2_copy.var = utility->result_2;
-            //------------------------------------
-
-            CreateNode( tree, result_2_copy, &right, VAR );
-            InsertLeave( tree, node, RIGHT, right );
-            ON_DEBUG(
-                        Output( dump, tree ); 
-                        PAUSE    
-                    )
-            //----------------------------------
-            utility->track_1 = utility->track_2;
-            //----------------------------------
-            NodeFromData( dump, tree, right, utility );
-
-        }
-        else 
-        {
-            node->right = nullptr;
-            strtok_r( utility->track_2, utility->delim_3, &utility->track_2 );
-            ON_DEBUG( printf(SINIY "huy: %s\n" DELETE_COLOR, utility->track_2 ); )
-        }
-    }
-    else 
-    {   
-        return;
-    }
-    strtok_r( utility->track_2, utility->delim_3, &utility->track_2 );
-
-    return;
+    p++;
+    return val;
 }
-//---------------------------------------------------------------------------------------
+
+int GetE()
+{
+    int val = GetT();
+ 
+    while( (s[p] == '+') || (s[p] == '-') )
+    {
+        int op = p;
+            printf(" p: %d OP: '%d'\n", p, s[op] );
+        p++;
+        int val2 = GetT();
+        if( s[op] == '+' )
+        {
+            printf("va1: %d val2: %d \n", val, val2 );
+            val += val2;
+        }
+        else
+        {
+            printf("va1: %d val2: %d \n", val, val2 );
+            val -= val2;
+        }
+    }
+
+    return val;
+}
+
+int GetT( )
+{
+    int val = GetP();
+
+    while( s[p] == '*' || s[p] == '/' )
+    {
+        int op = p;
+        p++;
+        int val2 = GetP();
+        if( s[op] == '*' )
+        {
+            val *= val2;
+        }
+        else 
+        {
+            val /= val2;
+        }
+    }
+    return val;
+}
+
+int GetP()
+{
+    if( s[p] == '(' )
+    {
+        p++;
+        int val = GetE();
+        if( s[p] != ')' )
+        {
+            printf(RED "Syntax error in GetP\n" DELETE_COLOR);
+            exit(0);
+        }
+        p++;
+        return val;
+    }
+    else 
+    {
+        return GetN();
+    }
+}
+
+int GetN()
+{
+    int val = 0;
+    old_p = p;
+
+    while( '0' <= s[p] && s[p] <= '9' )
+    {   
+        val = val*10 + s[p] - '0';
+        p++;
+    }
+    assert( old_p != p );
+    return val;
+}
 
 
 //---------------------------------------------------------------------------------------

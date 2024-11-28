@@ -50,7 +50,7 @@ enum TreeErrors FinishOutput( struct File_text* file )
 {
     fprintf(file->stream, "\n}\n");
     char cmd[256] = {};
-    snprintf(cmd, sizeof(cmd), "dot -Tsvg %s > %s", output_graph_name, output_image_name);
+    snprintf(cmd, sizeof(cmd), "dot -Tsvg %s%s > %s%s", project_directory, output_graph_name, project_directory, output_image_name);
     ON_DEBUG( printf(SINIY "command for graphviz: " YELLOW "%s\n" DELETE_COLOR, cmd); )
 
     fclose(file->stream);
@@ -170,10 +170,6 @@ void WriteEdge( struct File_text* file, struct Node_t* node )
     return;
 }
 //------------------------------------------------------------
-
-
-
-
 
 
 //-------------------- TREE DATA -----------------------------

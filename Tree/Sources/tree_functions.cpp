@@ -561,11 +561,10 @@ enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** a
         }
         default:
         {
-            printf(RED "Smth wrong in node_typrei in FindNode\n" DELETE_COLOR);
+            printf(RED "Smth wrong in node_type in FindNode\n" DELETE_COLOR);
             break;
         }
     }
-    
 
     return GOOD_FIND;
 }
@@ -576,7 +575,7 @@ enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct 
     struct Node_t* left_search = node_search->left;
     struct Node_t* right_search = node_search->right;
 
-    if( fabs( node_search->data.op - to_find ) > EPSILON )
+    if( fabs( node_search->data.num - to_find ) > EPSILON )
     {
         if( left_search != nullptr )
         {
@@ -587,6 +586,7 @@ enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct 
         {
             FindNumNode( right_search, to_find, answer );
         }
+        return GOOD_FIND;
     }
     else 
     {
@@ -594,16 +594,18 @@ enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct 
         return GOOD_FIND;
     }
 
+    printf(YELLOW "Haven't found rhis number\n" DELETE_COLOR);
     return BAD_FIND;
 }
 
 
-enum TreeErrors FindOpNode( struct Node_t* node_search, char to_find, struct Node_t** answer )
+enum TreeErrors FindOpNode( struct Node_t* node_search, enum Operations to_find, struct Node_t** answer )
 {
     struct Node_t* left_search = node_search->left;
     struct Node_t* right_search = node_search->right;
 
-    if( node_search->data.op != to_find )
+
+    if( (int)node_search->data.op != (int)to_find )
     {
         if( left_search != nullptr )
         {
@@ -614,19 +616,26 @@ enum TreeErrors FindOpNode( struct Node_t* node_search, char to_find, struct Nod
         {
             FindOpNode( right_search, to_find, answer );
         }
+        return GOOD_FIND;
     }
     else 
     {
+        printf("\n%d %d\n\n", node_search->data.op, to_find );
         *answer = node_search;
         return GOOD_FIND;
     }
 
+    printf(YELLOW "Haven't found this operation\n" DELETE_COLOR);
     return BAD_FIND;
 }
 
 
 enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct Node_t** answer )
 {
+    assert( node_search );
+    assert( to_find );
+    assert( answer );
+    
         ON_DEBUG( printf(YELLOW "====== Start of FindNode ======\n" DELETE_COLOR); )
     struct Node_t* left_search = node_search->left;
         ON_DEBUG( printf(PURPLE "    left: %p\n" DELETE_COLOR, node_search->left); )
@@ -646,6 +655,7 @@ enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct N
             ON_DEBUG( printf(PURPLE "        going right\n" DELETE_COLOR); )
             FindVarNode( right_search, to_find, answer );
         }
+        return GOOD_FIND;
     }
     else 
     {
@@ -655,6 +665,7 @@ enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct N
         return GOOD_FIND;
     }
 
+    printf(YELLOW "Haven't found this variable\n" DELETE_COLOR);
     return BAD_FIND;
 }
 

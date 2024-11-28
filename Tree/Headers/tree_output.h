@@ -3,6 +3,8 @@
 #ifndef AKINATOR_OUTPUT_HEADER
 #define AKINATOR_OUTPUT_HEADER
 
+const char project_directory[100] = "/home/vyacheslav/Differenciator/Tree/";
+
 const char output_image_name[40] = "TreeGraph.svg";
 const char output_graph_name[40] = "TreeGraph.dot";
 const char output_html_name[40] =  "TreeGraph.html";
