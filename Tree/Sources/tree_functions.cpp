@@ -164,6 +164,39 @@ enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t*
 }   
 //=============================================================================
 
+//---------- Tree* tree --- is where to add copied node ------------
+enum TreeErrors CopyNode( struct Tree* tree, struct Node_t* node_to_copy, struct Node_t** answer )
+{
+    assert( tree );
+    assert( node_to_copy );
+    assert( answer );
+
+    union Data_t data = {};
+    switch( (int)node_to_copy->type )
+    {
+        case NUM:
+        {
+            data.num = node_to_copy->data.num;
+            CreateNode( tree, data, answer, NUM );
+            break;
+        }
+        case VAR:
+        {
+            data.var = node_to_copy->data.var;
+            CreateNode( tree, data, answer, VAR );
+            break;
+        }
+        case OP:
+        {
+            data.op = node_to_copy->data.op;
+            CreateNode( tree, data, answer, OP );
+            break;
+        }
+    }  
+
+    return GOOD_CREATE;
+}
+
 
 //---------------------------TREE STRINGS FUNCTIONS----------------------------
 enum TreeErrors FindString( struct Tree* tree, char* to_find, int* string_position )
@@ -409,6 +442,9 @@ enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct No
 
 void FreeTree( struct Tree* tree, struct Node_t* node )
 {   
+    assert(tree);
+    assert(node);
+    
     struct Node_t* left = node->left;
     struct Node_t* right = node->right;
 
@@ -425,7 +461,9 @@ void FreeTree( struct Tree* tree, struct Node_t* node )
     if( node->type == VAR )
         DeleteString( tree, node->data.var );
 
+    
     free( node );
+    return;
 }
 
 

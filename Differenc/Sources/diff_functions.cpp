@@ -1,57 +1,52 @@
 #include "../Headers/diff_functions.h"
 
-/*
 enum DiffInfo Run()
 {
-    //------------Initialize------------
-    struct File_text origin_tree_input = {}; 
-    struct File_text origin_tree_output = {};   
-    struct File_text origin_graph_file = {};  
-    struct Tree origin_tree = {};
+    // ------------Initialize------------
+    struct File_text tree_input = {}; //for input
+    struct File_text tree_output = {};   // for output
+    struct File_text graph_file = {};  //for inpit
+    struct Tree my_tree = {};
 
     struct File_text diff_tree_input = {}; 
     struct File_text diff_tree_output = {};   
-    struct File_text diff__graph_file = {};  
+    struct File_text diff_graph_file = {};  
     struct Tree diff_tree = {};
-    //----------------------------------
 
-    // MakeTreeData( &graph_file, &tree_input, &oringin_tree );
+    MakeTreeData( &graph_file, &tree_input, &my_tree );
 
-    
+    Differentiate( &my_tree, &diff_tree );
 
-    //-------------SAVING ORIGINAL TREE DATA--------------
+
+    //----( probably not needed in differenciator )------
     // TreeData( &my_tree, &tree_output );
-    // -------------------------------------------
+    //---------------------------------------------------
 
     //-----------------PRINTING------------------
-    if(origin_tree.status == GOOD_TREE)
+    if(my_tree.status == GOOD_TREE)
     {
-        Output( &origin_graph_file, &origin_tree);
+        // Output( &graph_file, &my_tree);
+        Output( &diff_graph_file, &diff_tree);
     }
     else 
     {
         printf(RED "Bad Tree :(\n" DELETE_COLOR);
     }
     //-------------------------------------------
-
-
-
-
-    // Differentiate( );
-
     
-    TreeDtor( &origin_tree );
+    TreeDtor( &my_tree );
     TreeDtor( &diff_tree );
-}   
 
-*/
+    return GOOD_DIFF;
+}
+
+
 enum DiffInfo Differentiate( struct Tree* origin_tree, struct Tree* diff_tree )
 {
     diff_tree->root = MakeDifferentiation( origin_tree->root, diff_tree );
 
     return GOOD_DIFF;
 }
-
 
 //----Watches on origin node and based on its conten, builds new tree( Doesn't touch origin tree!!! )--
 struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* diff_tree )
@@ -118,7 +113,8 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
                     InsertLeave( diff_tree, ready_node->left, LEFT, tmp_node );
 
-                    InsertLeave( diff_tree, ready_node->left, RIGHT, origin_node->right );
+                    CopyNode( diff_tree, origin_node->right, &tmp_node );
+                    InsertLeave( diff_tree, ready_node->left, RIGHT, tmp_node );
                     //---------------------------------------------------
 
                     //----------------------RIGHT------------------------
@@ -126,7 +122,8 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     CreateNode( diff_tree, data, &tmp_node, OP );
                     InsertLeave( diff_tree, ready_node, RIGHT, tmp_node ); 
 
-                    InsertLeave( diff_tree, ready_node->right, LEFT, origin_node->left );
+                    CopyNode( diff_tree, origin_node->left, &tmp_node );
+                    InsertLeave( diff_tree, ready_node->right, LEFT, tmp_node );
 
                     tmp_node = MakeDifferentiation( origin_node->right, diff_tree );
                     InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
@@ -153,7 +150,8 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
                     InsertLeave( diff_tree, ready_node->left->left, LEFT, tmp_node );
 
-                    InsertLeave( diff_tree, ready_node->left->left, RIGHT, origin_node->right );
+                    CopyNode( diff_tree, origin_node->right, &tmp_node );
+                    InsertLeave( diff_tree, ready_node->left->left, RIGHT, tmp_node );
                     //---------------------------------------------------
 
                     //---------------------RIGHT-------------------------
@@ -161,7 +159,8 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     CreateNode( diff_tree, data, &tmp_node, OP );
                     InsertLeave( diff_tree, ready_node->left, RIGHT, tmp_node ); 
 
-                    InsertLeave( diff_tree, ready_node->left->right, LEFT, origin_node->left );
+                    CopyNode( diff_tree, origin_node->left, &tmp_node );
+                    InsertLeave( diff_tree, ready_node->left->right, LEFT, tmp_node );
 
                     tmp_node = MakeDifferentiation( origin_node->right, diff_tree );
                     InsertLeave( diff_tree, ready_node->left->right, RIGHT, tmp_node );
@@ -173,10 +172,10 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
 
                     //-------------SQUARE OF DENOMINATOR-----------------
-                    data.var = origin_node->left->data.var;
-                    CreateNode( diff_tree, data, &tmp_node, VAR );
+                    CopyNode( diff_tree, origin_node->right, &tmp_node );
                     InsertLeave( diff_tree, ready_node->right, LEFT, tmp_node );
-                    CreateNode( diff_tree, data, &tmp_node, VAR );
+
+                    CopyNode( diff_tree, origin_node->right, &tmp_node );
                     InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
                     //---------------------------------------------------
 

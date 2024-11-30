@@ -1,11 +1,7 @@
 #include "../Headers/tree_input.h"
 #include "../Headers/tree_functions.h"
 
-int p = 0;
-int old_p = 0;
-char s[200] = "";
-
-//---------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, struct Tree* tree )
 {
     ON_DEBUG( printf(RED "====== START MakeTreeData ======\n" DELETE_COLOR); )
@@ -26,13 +22,18 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, st
         fseek(stream, sizeof(char) * 0L,  SEEK_SET);
         fread( (void*)file->buffer, sizeof(char), size_of_stream, stream);
 
-        strcpy( s, file->buffer );
-        printf("%s\n\n", s);
+        //------INPUT-----------------
+        struct ParserSrc src = {};
+            //----Init------
+            src.p = 0;
+            src.old_p = 0;
+            strcpy( src.s, file->buffer );
+            src.tree = tree;
+            //--------------
 
-        int val = 0;
-        val = GetG();
-
-        printf(YELLOW "val: %d\n" DELETE_COLOR, val );
+        struct Node_t* answer = nullptr;
+        GetG( &src );
+        //----------------------------
 
 
         fclose(stream);
@@ -41,103 +42,189 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, st
 
     return GOOD_INPUT;
 }
-//---------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-int GetG()
+//-----------------RECURSIVE GO DOWN-------------------------------------------
+void GetG( struct ParserSrc* src )
 {
-    int val = GetE();
-    
-    if( s[p] != '$' )
+    if( src->s[src->p] != '$' )
     {
-        printf(RED "Syntax error in GetG\n" DELETE_COLOR);
+        printf(RED "Syntax error in beggining of GetG\n" DELETE_COLOR);
         exit(0);
     }
-    p++;
-    return val;
+    src->p++;
+
+    src->tree->root = GetE( src );
+    
+    if( src->s[src->p] != '$' )
+    {
+        printf(RED "Syntax error in the end of GetG\n" DELETE_COLOR);
+        exit(0);
+    }
+    src->p++;
 }
 
-int GetE()
+Node_t* GetE( struct ParserSrc* src )
 {
-    int val = GetT();
+    struct Node_t* val = GetT( src );
  
-    while( (s[p] == '+') || (s[p] == '-') )
+    while( (src->s[src->p] == '+') || (src->s[src->p] == '-') )
     {
-        int op = p;
-            printf(" p: %d OP: '%d'\n", p, s[op] );
-        p++;
-        int val2 = GetT();
-        if( s[op] == '+' )
+        int op = src->p;
+
+        src->p++;
+        struct Node_t* val2 = GetT( src );
+        if( src->s[op] == '+' )
         {
-            printf("va1: %d val2: %d \n", val, val2 );
-            val += val2;
+            struct Node_t* tmp_node = nullptr;
+            union Data_t value = {};
+            value.op = kAdd;
+            CreateNode( src->tree, value, &tmp_node, OP );
+
+            InsertLeave( src->tree, tmp_node, LEFT, val );
+            InsertLeave( src->tree, tmp_node, RIGHT, val2 );
+
+            //----exchange----
+            struct Node_t* new_tmp = tmp_node;
+            tmp_node = val;
+            val = new_tmp;
+            //----------------
         }
         else
         {
-            printf("va1: %d val2: %d \n", val, val2 );
-            val -= val2;
+            struct Node_t* tmp_node = nullptr;
+            union Data_t value = {};
+            value.op = kSub;
+            CreateNode( src->tree, value, &tmp_node, OP );
+
+            InsertLeave( src->tree, tmp_node, LEFT, val );
+            InsertLeave( src->tree, tmp_node, RIGHT, val2 );
+
+            //----exchange----
+            struct Node_t* new_tmp = tmp_node;
+            tmp_node = val;
+            val = new_tmp;
+            //----------------
         }
     }
 
     return val;
 }
 
-int GetT( )
+Node_t* GetT( struct ParserSrc* src )
 {
-    int val = GetP();
+    struct Node_t* val = GetP( src );
 
-    while( s[p] == '*' || s[p] == '/' )
+    while( src->s[src->p] == '*' || src->s[src->p] == '/' )
     {
-        int op = p;
-        p++;
-        int val2 = GetP();
-        if( s[op] == '*' )
+        int op = src->p;
+        src->p++;
+        struct Node_t* val2 = GetP( src );
+        if( src->s[op] == '*' )
         {
-            val *= val2;
+            struct Node_t* tmp_node = nullptr;
+            union Data_t value = {};
+            value.op = kMul;
+            CreateNode( src->tree, value, &tmp_node, OP );
+            // val *= val2;
+            InsertLeave( src->tree, tmp_node, LEFT, val );
+            InsertLeave( src->tree, tmp_node, RIGHT, val2 );
+
+            //----exchange----
+            struct Node_t* new_tmp = tmp_node;
+            tmp_node = val;
+            val = new_tmp;
+            //----------------
         }
         else 
         {
-            val /= val2;
+            struct Node_t* tmp_node = nullptr;
+            union Data_t value = {};
+            value.op = kDiv;
+            CreateNode( src->tree, value, &tmp_node, OP );
+            // val *= val2;
+            InsertLeave( src->tree, tmp_node, LEFT, val );
+            InsertLeave( src->tree, tmp_node, RIGHT, val2 );
+
+            //----exchange----
+            struct Node_t* new_tmp = tmp_node;
+            tmp_node = val;
+            val = new_tmp;
+            //----------------
         }
     }
     return val;
 }
 
-int GetP()
+Node_t* GetP( struct ParserSrc* src )
 {
-    if( s[p] == '(' )
+    if( src->s[src->p] == '(' )
     {
-        p++;
-        int val = GetE();
-        if( s[p] != ')' )
+        src->p++;
+        struct Node_t* val = GetE( src );
+        if( src->s[src->p] != ')' )
         {
             printf(RED "Syntax error in GetP\n" DELETE_COLOR);
             exit(0);
         }
-        p++;
+        src->p++;
+
         return val;
+    }
+    else if( '0' <= src->s[src->p] && src->s[src->p] <= '9' )
+    {
+        return GetN( src );
+    }
+    else if( src->s[src->p] == 'x' )
+    {
+        return GetV( src );
     }
     else 
     {
-        return GetN();
+        printf("Wrong input\n");
+        exit(0);
     }
 }
 
-int GetN()
+Node_t* GetN( struct ParserSrc* src )
 {
     int val = 0;
-    old_p = p;
+    src->old_p = src->p;
 
-    while( '0' <= s[p] && s[p] <= '9' )
+    while( '0' <= src->s[src->p] && src->s[src->p] <= '9' )
     {   
-        val = val*10 + s[p] - '0';
-        p++;
+        val = val*10 + src->s[src->p] - '0';
+        src->p++;
     }
-    assert( old_p != p );
-    return val;
+    assert( src->old_p != src->p );
+
+    struct Node_t* new_node = nullptr;
+    union Data_t value = {};
+    value.num = (double)val;
+    CreateNode( src->tree, value, &new_node, NUM );
+    return new_node;
 }
 
+Node_t* GetV( struct ParserSrc* src )
+{
+    char val[2] = "";
+    src->old_p = src->p;
 
-//---------------------------------------------------------------------------------------
+    val[0] = src->s[src->p];
+    src->p++;
+
+    assert( src->old_p != src->p );
+
+    struct Node_t* new_node = nullptr;
+    union Data_t value = {};
+    value.var = val;
+    CreateNode( src->tree, value, &new_node, VAR );
+    return new_node;
+}
+
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 void InputFileNameChange( void )
 {
     ON_DEBUG( printf(YELLOW "====== Start Changing Names ======\n" DELETE_COLOR); )

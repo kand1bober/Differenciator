@@ -48,6 +48,11 @@ union Data_t
     Operations op;
 };  
 
+// struct Lexer {
+//     Node_types kind_of_data;
+//     Data_t* array;
+// };
+
 struct Node_t
 {   
     union Data_t data;
@@ -141,6 +146,8 @@ enum TreeErrors CreateNode( struct Tree* tree, Data_t data, struct Node_t** new_
 enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t** new_node );
 enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, struct Node_t** new_node );
 enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t** new_node );
+
+enum TreeErrors CopyNode( struct Tree* tree, struct Node_t* node_to_copy, struct Node_t** answer );
 
 enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
 enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
