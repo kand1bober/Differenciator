@@ -187,18 +187,19 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     data.op = kMul;
                     CreateNode( diff_tree, data, &ready_node, OP );
 
+
                     //--------------------------LEFT---------------------------
                     CopyNode( diff_tree, origin_node->right, &tmp_node );
                     InsertLeave( diff_tree, ready_node, LEFT, tmp_node );
                     
                     //-------------------------RIGHT---------------------------
 
-                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
-                    InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
-
                     data.op = kMul;
                     CreateNode( diff_tree, data, &tmp_node, OP );
                     InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+
+                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
+                    InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
 
                     data.op = kDeg;
                     CreateNode( diff_tree, data, &tmp_node, OP );
@@ -218,6 +219,48 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     CreateNode( diff_tree, data, &tmp_node, NUM );
                     InsertLeave( diff_tree, ready_node->right->left->right, RIGHT, tmp_node );
                     
+                    break;
+                }
+
+                case kSin:
+                {
+                    
+                    break;
+                }
+
+                case kCos:
+                {
+
+                    break;
+                }
+
+                case kTg:
+                {
+
+                    break;
+                }
+
+                case kCtg:
+                {
+
+                    break;
+                }
+
+                case kLog:
+                {
+
+                    break;
+                }
+
+                case kLn:
+                {
+
+                    break;
+                }
+
+                case kExp:
+                {
+
                     break;
                 }
             }

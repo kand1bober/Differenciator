@@ -1,4 +1,4 @@
-#include "../Headers/tree_output.h"
+#include "../Headers/tree_dot_output.h"
 
 int CheckSize_t( size_t number )
 {

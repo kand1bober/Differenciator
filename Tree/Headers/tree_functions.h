@@ -30,11 +30,19 @@ enum Node_types
 
 enum Operations
 {   
-    kAdd = '+',
-    kSub = '-',
-    kMul = '*',
-    kDiv = '/',
-    kDeg = '^',
+    kNoOp = '.',
+    kAdd  = '+',
+    kSub  = '-',
+    kMul  = '*',
+    kDiv  = '/',
+    kDeg  = '^',
+    kSin  = 'S',
+    kCos  = 'C',
+    kTg   = 'T',
+    kCtg  = 'G',
+    kLog  = 'L',
+    kLn   = 'N',
+    kExp  = 'E',
 };
 
 struct SmartString

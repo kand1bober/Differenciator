@@ -112,13 +112,13 @@ Node_t* GetE( struct ParserSrc* src )
 
 Node_t* GetT( struct ParserSrc* src )
 {
-    struct Node_t* val = GetP( src );
+    struct Node_t* val = GetD( src );
 
     while( src->s[src->p] == '*' || src->s[src->p] == '/' )
     {
         int op = src->p;
         src->p++;
-        struct Node_t* val2 = GetP( src );
+        struct Node_t* val2 = GetD( src );
         if( src->s[op] == '*' )
         {
             struct Node_t* tmp_node = nullptr;
@@ -135,7 +135,7 @@ Node_t* GetT( struct ParserSrc* src )
             val = new_tmp;
             //----------------
         }
-        else 
+        else if( src->s[op] == '/' )
         {
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
@@ -151,7 +151,40 @@ Node_t* GetT( struct ParserSrc* src )
             val = new_tmp;
             //----------------
         }
+        else 
+        {
+            printf(RED "unknown problem in %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+            exit(0);
+        }
     }
+    return val;
+}
+
+Node_t* GetD( struct ParserSrc* src )
+{
+    struct Node_t* val = GetP( src );
+
+    while( src->s[src->p] == '^' )
+    {
+        int op = src->p;
+        src->p++;
+        struct Node_t* val2 = GetP( src );
+
+        struct Node_t* tmp_node = nullptr;
+        union Data_t value = {};
+        value.op = kDeg;
+        CreateNode( src->tree, value, &tmp_node, OP );
+
+        InsertLeave( src->tree, tmp_node, LEFT, val );
+        InsertLeave( src->tree, tmp_node, RIGHT, val2 );
+
+        //----exchange----
+        struct Node_t* new_tmp = tmp_node;
+        tmp_node = val;
+        val = new_tmp;
+        //----------------
+    }
+
     return val;
 }
 
@@ -222,6 +255,20 @@ Node_t* GetV( struct ParserSrc* src )
 }
 
 //-----------------------------------------------------------------------------
+
+Node_t* GetS( struct ParserSrc* src )
+{
+    struct Node_t* val = nullptr;
+
+
+}
+
+Node_t* GetL( struct ParserSrc* src )
+{   
+    struct Node_t* val = nullptr;
+
+
+}
 
 //-----------------------------------------------------------------------------
 void InputFileNameChange( void )

@@ -19,12 +19,13 @@ void NodeFromData( struct File_text* dump, struct Tree* tree, struct Node_t* nod
 void InputFileNameChange( void );
 
 //-------------PARSER BY DED----------------
-void GetG( struct ParserSrc* data );
-Node_t* GetV( struct ParserSrc* data );
-Node_t* GetE( struct ParserSrc* data );
-Node_t* GetT( struct ParserSrc* data );
-Node_t* GetP( struct ParserSrc* data );
-Node_t* GetN( struct ParserSrc* data );
+void GetG( struct ParserSrc* src );
+Node_t* GetE( struct ParserSrc* src );
+Node_t* GetT( struct ParserSrc* src );
+Node_t* GetD( struct ParserSrc* src );
+Node_t* GetP( struct ParserSrc* src );
+Node_t* GetN( struct ParserSrc* src );
+Node_t* GetV( struct ParserSrc* src );
 //----------------------------------------------
 
 #endif
