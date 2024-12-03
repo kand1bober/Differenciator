@@ -162,13 +162,13 @@ Node_t* GetT( struct ParserSrc* src )
 
 Node_t* GetD( struct ParserSrc* src )
 {
-    struct Node_t* val = GetP( src );
+    struct Node_t* val = GetSL( src ); //TODO: S | L
 
     while( src->s[src->p] == '^' )
     {
         int op = src->p;
         src->p++;
-        struct Node_t* val2 = GetP( src );
+        struct Node_t* val2 = GetSL( src ); //TODO: S | L
 
         struct Node_t* tmp_node = nullptr;
         union Data_t value = {};
@@ -187,6 +187,268 @@ Node_t* GetD( struct ParserSrc* src )
 
     return val;
 }
+
+Node_t* GetSL( struct ParserSrc* src )
+{
+    union Data_t value = {};
+    struct Node_t* tmp_node = nullptr;
+
+    struct Node_t* val1 = nullptr;
+    struct Node_t* val2 = nullptr;
+    struct Node_t* val = nullptr;
+
+    switch( src->s[src->p] )
+    {   
+        case 's':
+        {
+            if( strncmp( src->s + src->p, "sin", 3 ) == 0 )
+            {
+                src->p += 3;
+
+                if( src->s[src->p] == '(' )
+                {
+                    src->p++;
+                    val2 = GetP( src ); 
+
+                    if( src->s[src->p] != ')' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }
+                    src->p++;
+
+                    value.op = kSin;
+                    CreateNode( src->tree, value, &val, OP );
+                    InsertLeave( src->tree, val, RIGHT, val2 );
+                }
+                else 
+                {
+                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    exit(0);
+                }
+            }
+            else 
+            {
+                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+            }
+
+            break;
+        }
+
+        case 'c':
+        {
+            if( strncmp( src->s + src->p, "cos", 3 ) == 0  )
+            {
+                src->p += 3;
+
+                if( src->s[src->p] == '(' )
+                {
+                    src->p++;
+                    val2 = GetP( src ); 
+
+                    if( src->s[src->p] != ')' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }
+                    src->p++;
+
+                    value.op = kCos;
+                    CreateNode( src->tree, value, &val, OP );
+                    InsertLeave( src->tree, val, RIGHT, val2 );
+                }
+                else
+                {
+                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    exit(0);
+                }
+            }
+            else if(  strncmp( src->s + src->p, "ctg", 3 ) == 0 )
+            {
+                src->p += 3;
+
+                if( src->s[src->p] == '(' )
+                {
+                    src->p++;
+                    val2 = GetP( src ); 
+
+                    if( src->s[src->p] != ')' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }
+                    src->p++;
+
+                    value.op = kCtg;
+                    CreateNode( src->tree, value, &val, OP );
+                    InsertLeave( src->tree, val, RIGHT, val2 );
+                }
+                else
+                {
+                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    exit(0);
+                }
+            }
+            else 
+            {
+                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                exit(0);
+            }
+
+            break;
+        }
+
+        case 't':
+        {
+            if( strncmp( src->s + src->p, "tg", 2 ) == 0 )
+            {
+                src->p += 2;
+
+                if( src->s[src->p] == '(' )
+                {
+                    src->p++;
+                    val2 = GetP( src ); 
+
+                    if( src->s[src->p] != ')' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }
+                    src->p++;
+
+                    value.op = kTg;
+                    CreateNode( src->tree, value, &val, OP );
+                    InsertLeave( src->tree, val, RIGHT, val2 );
+                }
+                else
+                {
+                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );  
+                    exit(0);
+                }
+            }
+            else
+            {
+                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );   
+                exit(0);
+            }
+
+            break;
+        }
+
+        case 'e':
+        {
+            if( strncmp( src->s + src->p, "exp", 3 ) == 0  )
+            {
+                src->p += 3;
+                if( src->s[src->p] == '(' )
+                {
+                    src->p++;
+                    val2 = GetP( src ); 
+
+                    if( src->s[src->p] != ')' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }
+                    src->p++;
+
+                    value.op = kExp;
+                    CreateNode( src->tree, value, &val, OP );
+                    InsertLeave( src->tree, val, RIGHT, val2 );
+                }
+                else
+                {
+                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    exit(0);
+                }
+            }
+            else
+            {
+                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                exit(0);
+            }
+
+            break;
+        }
+
+        case 'l':
+        {
+            if( strncmp( src->s + src->p, "log", 3 ) == 0 )
+            {   
+                src->p += 3;
+
+                if( src->s[src->p] == '(' )
+                {
+                    src->p++;
+
+                    val1 = GetP( src );
+                    
+                    if( src->s[src->p] != ',' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }   
+                    src->p++;
+
+                    val2 = GetP( src ); 
+
+                    if( src->s[src->p] != ')' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }
+                    src->p++;
+
+                    value.op = kLog;
+                    CreateNode( src->tree, value, &val, OP );
+                    InsertLeave( src->tree, val, LEFT, val1 );
+                    InsertLeave( src->tree, val, RIGHT, val2 );
+                }
+                else
+                {
+                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    exit(0);
+                }
+            }
+            else if( strncmp( src->s + src->p, "ln", 2 ) == 0 )
+            {
+                src->p += 2;
+
+                if( src->s[src->p] == '(' )
+                {
+                    src->p++;
+                    val2 = GetP( src ); 
+
+                    if( src->s[src->p] != ')' )
+                    {
+                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        exit(0);
+                    }
+                    src->p++;
+
+                    value.op = kLn;
+                    CreateNode( src->tree, value, &val, OP );
+                    InsertLeave( src->tree, val, RIGHT, val2 );
+                }
+            }
+            else 
+            {
+                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );  
+                exit(0);
+            }
+            break;
+        }
+
+        default:
+        {
+            val = GetP( src );
+            break;  
+        }
+    }
+
+    return val;
+}
+
 
 Node_t* GetP( struct ParserSrc* src )
 {
@@ -256,19 +518,6 @@ Node_t* GetV( struct ParserSrc* src )
 
 //-----------------------------------------------------------------------------
 
-Node_t* GetS( struct ParserSrc* src )
-{
-    struct Node_t* val = nullptr;
-
-
-}
-
-Node_t* GetL( struct ParserSrc* src )
-{   
-    struct Node_t* val = nullptr;
-
-
-}
 
 //-----------------------------------------------------------------------------
 void InputFileNameChange( void )

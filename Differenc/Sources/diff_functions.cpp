@@ -15,7 +15,7 @@ enum DiffInfo Run()
 
     MakeTreeData( &graph_file, &tree_input, &my_tree );
 
-    Differentiate( &my_tree, &diff_tree );
+    // Differentiate( &my_tree, &diff_tree );
 
 
     //----( probably not needed in differenciator )------
@@ -25,8 +25,8 @@ enum DiffInfo Run()
     //-----------------PRINTING------------------
     if(my_tree.status == GOOD_TREE)
     {
-        // Output( &graph_file, &my_tree);
-        Output( &diff_graph_file, &diff_tree);
+        Output( &graph_file, &my_tree);
+        // Output( &diff_graph_file, &diff_tree);
     }
     else 
     {
@@ -35,7 +35,7 @@ enum DiffInfo Run()
     //-------------------------------------------
     
     TreeDtor( &my_tree );
-    TreeDtor( &diff_tree );
+    // TreeDtor( &diff_tree );
 
     return GOOD_DIFF;
 }

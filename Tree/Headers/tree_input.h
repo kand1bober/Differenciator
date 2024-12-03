@@ -23,6 +23,7 @@ void GetG( struct ParserSrc* src );
 Node_t* GetE( struct ParserSrc* src );
 Node_t* GetT( struct ParserSrc* src );
 Node_t* GetD( struct ParserSrc* src );
+Node_t* GetSL( struct ParserSrc* src );
 Node_t* GetP( struct ParserSrc* src );
 Node_t* GetN( struct ParserSrc* src );
 Node_t* GetV( struct ParserSrc* src );
