@@ -25,14 +25,16 @@ enum Node_types
     NUM = 1,
     VAR = 2,
     OP = 3,
+    kNoType = 4,
 };
 
 enum Operations
-{
+{   
     kAdd = '+',
     kSub = '-',
     kMul = '*',
     kDiv = '/',
+    kDeg = '^',
 };
 
 struct SmartString
@@ -152,6 +154,7 @@ enum TreeErrors CopyNode( struct Tree* tree, struct Node_t* node_to_copy, struct
 enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
 enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
 enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
+enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src );
 
 //----------------------------FIND FUNCTIONS----------------------------------------
 enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type ); //TODO: переделать 

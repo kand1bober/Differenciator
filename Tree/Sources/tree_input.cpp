@@ -35,7 +35,6 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, st
         GetG( &src );
         //----------------------------
 
-
         fclose(stream);
         free( file->buffer );
     }

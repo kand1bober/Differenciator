@@ -459,9 +459,10 @@ void FreeTree( struct Tree* tree, struct Node_t* node )
     }
 
     if( node->type == VAR )
+    {
         DeleteString( tree, node->data.var );
+    }
 
-    
     free( node );
     return;
 }
@@ -709,3 +710,37 @@ enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct N
     return BAD_FIND;
 }
 
+
+enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src )
+{
+    if( to_replace->parent->left == to_replace )
+    {
+        to_replace->parent->left = src;
+    }
+    else if( to_replace->parent->right == to_replace )
+    {
+        to_replace->parent->right = src;    
+    }
+    else
+    {
+        printf(RED "unknown problem in %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+        exit(0);
+    }
+
+    src->parent = to_replace->parent;
+    src->left = to_replace->left;
+    src->right = to_replace->right;
+
+    switch( (int)to_replace->type )
+    {
+        case NUM:
+        {
+            //TODO: функция не доделана
+            break;
+        }
+    }
+
+    free( to_replace );
+
+    return GOOD_INSERT;
+}

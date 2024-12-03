@@ -51,7 +51,7 @@ enum DiffInfo Differentiate( struct Tree* origin_tree, struct Tree* diff_tree )
 //----Watches on origin node and based on its conten, builds new tree( Doesn't touch origin tree!!! )--
 struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* diff_tree )
 {
-    struct Node_t* ready_node = nullptr;
+    struct Node_t* ready_node = nullptr; //создаётся на каждой стадии рекурсии и возвращается в конце
     union Data_t data = {};
 
     switch( (int)origin_node->type )
@@ -179,6 +179,45 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                     InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
                     //---------------------------------------------------
 
+                    break;
+                }
+
+                case kDeg:
+                {
+                    data.op = kMul;
+                    CreateNode( diff_tree, data, &ready_node, OP );
+
+                    //--------------------------LEFT---------------------------
+                    CopyNode( diff_tree, origin_node->right, &tmp_node );
+                    InsertLeave( diff_tree, ready_node, LEFT, tmp_node );
+                    
+                    //-------------------------RIGHT---------------------------
+
+                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
+                    InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
+
+                    data.op = kMul;
+                    CreateNode( diff_tree, data, &tmp_node, OP );
+                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+
+                    data.op = kDeg;
+                    CreateNode( diff_tree, data, &tmp_node, OP );
+                    InsertLeave( diff_tree, ready_node->right, LEFT, tmp_node );
+
+                    CopyNode( diff_tree, origin_node->left, &tmp_node );
+                    InsertLeave( diff_tree, ready_node->right->left, LEFT, tmp_node );
+
+                    data.op = kSub;
+                    CreateNode( diff_tree, data, &tmp_node, OP );
+                    InsertLeave( diff_tree, ready_node->right->left, RIGHT, tmp_node );
+
+                    CopyNode( diff_tree, origin_node->right, &tmp_node );
+                    InsertLeave( diff_tree, ready_node->right->left->right, LEFT, tmp_node );
+
+                    data.num = 1;
+                    CreateNode( diff_tree, data, &tmp_node, NUM );
+                    InsertLeave( diff_tree, ready_node->right->left->right, RIGHT, tmp_node );
+                    
                     break;
                 }
             }

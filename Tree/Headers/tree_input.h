@@ -1,6 +1,6 @@
 #include <sys/stat.h>
 
-#include "tree_output.h"
+#include "tree_dot_output.h"
 #include "tree_functions.h"
 
 #ifndef TREE_INPUT_HEADER
