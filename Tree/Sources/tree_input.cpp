@@ -78,7 +78,7 @@ Node_t* GetE( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kAdd;
-            CreateNode( src->tree, value, &tmp_node, OP );
+            tmp_node = CreateNode( src->tree, value, OP );
 
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -94,7 +94,7 @@ Node_t* GetE( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kSub;
-            CreateNode( src->tree, value, &tmp_node, OP );
+            tmp_node = CreateNode( src->tree, value, OP );
 
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -124,7 +124,7 @@ Node_t* GetT( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kMul;
-            CreateNode( src->tree, value, &tmp_node, OP );
+            tmp_node = CreateNode( src->tree, value, OP );
             // val *= val2;
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -140,7 +140,7 @@ Node_t* GetT( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kDiv;
-            CreateNode( src->tree, value, &tmp_node, OP );
+            tmp_node = CreateNode( src->tree, value, OP );
             // val *= val2;
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -173,7 +173,7 @@ Node_t* GetD( struct ParserSrc* src )
         struct Node_t* tmp_node = nullptr;
         union Data_t value = {};
         value.op = kDeg;
-        CreateNode( src->tree, value, &tmp_node, OP );
+        tmp_node = CreateNode( src->tree, value, OP );
 
         InsertLeave( src->tree, tmp_node, LEFT, val );
         InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -191,8 +191,6 @@ Node_t* GetD( struct ParserSrc* src )
 Node_t* GetSL( struct ParserSrc* src )
 {
     union Data_t value = {};
-    struct Node_t* tmp_node = nullptr;
-
     struct Node_t* val1 = nullptr;
     struct Node_t* val2 = nullptr;
     struct Node_t* val = nullptr;
@@ -212,24 +210,24 @@ Node_t* GetSL( struct ParserSrc* src )
 
                     if( src->s[src->p] != ')' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }
                     src->p++;
 
                     value.op = kSin;
-                    CreateNode( src->tree, value, &val, OP );
+                    val = CreateNode( src->tree, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else 
                 {
-                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                     exit(0);
                 }
             }
             else 
             {
-                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
             }
 
             break;
@@ -248,18 +246,18 @@ Node_t* GetSL( struct ParserSrc* src )
 
                     if( src->s[src->p] != ')' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }
                     src->p++;
 
                     value.op = kCos;
-                    CreateNode( src->tree, value, &val, OP );
+                    val = CreateNode( src->tree, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
                 {
-                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                     exit(0);
                 }
             }
@@ -274,24 +272,24 @@ Node_t* GetSL( struct ParserSrc* src )
 
                     if( src->s[src->p] != ')' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }
                     src->p++;
 
                     value.op = kCtg;
-                    CreateNode( src->tree, value, &val, OP );
+                    val = CreateNode( src->tree, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
                 {
-                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                     exit(0);
                 }
             }
             else 
             {
-                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                 exit(0);
             }
 
@@ -311,24 +309,24 @@ Node_t* GetSL( struct ParserSrc* src )
 
                     if( src->s[src->p] != ')' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }
                     src->p++;
 
                     value.op = kTg;
-                    CreateNode( src->tree, value, &val, OP );
+                    val = CreateNode( src->tree, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
                 {
-                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );  
+                    printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );  
                     exit(0);
                 }
             }
             else
             {
-                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );   
+                printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );   
                 exit(0);
             }
 
@@ -347,24 +345,24 @@ Node_t* GetSL( struct ParserSrc* src )
 
                     if( src->s[src->p] != ')' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }
                     src->p++;
 
                     value.op = kExp;
-                    CreateNode( src->tree, value, &val, OP );
+                    val = CreateNode( src->tree, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
                 {
-                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                     exit(0);
                 }
             }
             else
             {
-                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                 exit(0);
             }
 
@@ -382,10 +380,10 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     val1 = GetP( src );
-                    
+
                     if( src->s[src->p] != ',' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }   
                     src->p++;
@@ -394,19 +392,19 @@ Node_t* GetSL( struct ParserSrc* src )
 
                     if( src->s[src->p] != ')' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }
                     src->p++;
 
                     value.op = kLog;
-                    CreateNode( src->tree, value, &val, OP );
+                    val = CreateNode( src->tree, value, OP );
                     InsertLeave( src->tree, val, LEFT, val1 );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
                 {
-                    printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                    printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                     exit(0);
                 }
             }
@@ -421,19 +419,19 @@ Node_t* GetSL( struct ParserSrc* src )
 
                     if( src->s[src->p] != ')' )
                     {
-                        printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+                        printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
                         exit(0);
                     }
                     src->p++;
 
                     value.op = kLn;
-                    CreateNode( src->tree, value, &val, OP );
+                    val = CreateNode( src->tree, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
             }
             else 
             {
-                printf(RED "Suntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );  
+                printf(RED "Syntax error %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );  
                 exit(0);
             }
             break;
@@ -495,7 +493,7 @@ Node_t* GetN( struct ParserSrc* src )
     struct Node_t* new_node = nullptr;
     union Data_t value = {};
     value.num = (double)val;
-    CreateNode( src->tree, value, &new_node, NUM );
+    new_node = CreateNode( src->tree, value, NUM );
     return new_node;
 }
 
@@ -512,7 +510,7 @@ Node_t* GetV( struct ParserSrc* src )
     struct Node_t* new_node = nullptr;
     union Data_t value = {};
     value.var = val;
-    CreateNode( src->tree, value, &new_node, VAR );
+    new_node = CreateNode( src->tree, value, VAR );
     return new_node;
 }
 

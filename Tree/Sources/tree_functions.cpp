@@ -11,26 +11,27 @@ enum TreeErrors TreeDtor( struct Tree* tree )
 
 
 //=========================== CREATE NODE =====================================
-enum TreeErrors CreateNode( struct Tree* tree, Data_t data, struct Node_t** new_node, enum Node_types type )
+struct Node_t* CreateNode( struct Tree* tree, Data_t data, enum Node_types type )
 {
     assert( tree );
-    assert( new_node );
+
+    struct Node_t* new_node = nullptr;
 
     switch( (int)type )
     {
         case NUM:
         {
-            CreateNumNode( tree, data.num, new_node );
+            CreateNumNode( tree, data.num, &new_node );
             break;
         }
         case VAR:
         {
-            CreateVarNode( tree, data.var, new_node );
+            CreateVarNode( tree, data.var, &new_node );
             break;  
         }
         case OP:
         {
-            CreateOpNode( tree, data.op, new_node );
+            CreateOpNode( tree, data.op, &new_node );
             break;
         }
         default:
@@ -40,8 +41,8 @@ enum TreeErrors CreateNode( struct Tree* tree, Data_t data, struct Node_t** new_
         }
     }
 
-    return GOOD_CREATE; //if something strange
-}
+    return new_node;
+}   
 
 
 enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t** new_node )
@@ -165,11 +166,12 @@ enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t*
 //=============================================================================
 
 //---------- Tree* tree --- is where to add copied node ------------
-enum TreeErrors CopyNode( struct Tree* tree, struct Node_t* node_to_copy, struct Node_t** answer )
+struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy )
 {
     assert( tree );
     assert( node_to_copy );
-    assert( answer );
+
+    struct Node_t* answer = nullptr;
 
     union Data_t data = {};
     switch( (int)node_to_copy->type )
@@ -177,24 +179,24 @@ enum TreeErrors CopyNode( struct Tree* tree, struct Node_t* node_to_copy, struct
         case NUM:
         {
             data.num = node_to_copy->data.num;
-            CreateNode( tree, data, answer, NUM );
+            answer = CreateNode( tree, data, NUM );
             break;
         }
         case VAR:
         {
             data.var = node_to_copy->data.var;
-            CreateNode( tree, data, answer, VAR );
+            answer = CreateNode( tree, data,  VAR );
             break;
         }
         case OP:
         {
             data.op = node_to_copy->data.op;
-            CreateNode( tree, data, answer, OP );
+            answer = CreateNode( tree, data, OP );
             break;
         }
     }  
 
-    return GOOD_CREATE;
+    return answer;
 }
 
 
@@ -743,6 +745,25 @@ enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src )
     free( to_replace );
 
     return GOOD_INSERT;
+}
+
+struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy )
+{
+    struct Node_t* tmp_node = nullptr;
+
+    tmp_node = CopyNode( tree, to_copy );
+    
+    if( to_copy->left != nullptr )
+    {
+        tmp_node->left = CopyBranch( tree, to_copy->left );
+    }
+
+    if( to_copy->right != nullptr )
+    {
+        tmp_node->right = CopyBranch( tree, to_copy->right );
+    }
+
+    return tmp_node;
 }
 
 

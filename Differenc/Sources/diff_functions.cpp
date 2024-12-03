@@ -15,7 +15,7 @@ enum DiffInfo Run()
 
     MakeTreeData( &graph_file, &tree_input, &my_tree );
 
-    // Differentiate( &my_tree, &diff_tree );
+    Differentiate( &my_tree, &diff_tree );
 
 
     //----( probably not needed in differenciator )------
@@ -25,8 +25,8 @@ enum DiffInfo Run()
     //-----------------PRINTING------------------
     if(my_tree.status == GOOD_TREE)
     {
-        Output( &graph_file, &my_tree);
-        // Output( &diff_graph_file, &diff_tree);
+        // Output( &graph_file, &my_tree);
+        Output( &diff_graph_file, &diff_tree);
     }
     else 
     {
@@ -35,7 +35,7 @@ enum DiffInfo Run()
     //-------------------------------------------
     
     TreeDtor( &my_tree );
-    // TreeDtor( &diff_tree );
+    TreeDtor( &diff_tree );
 
     return GOOD_DIFF;
 }
@@ -43,13 +43,13 @@ enum DiffInfo Run()
 
 enum DiffInfo Differentiate( struct Tree* origin_tree, struct Tree* diff_tree )
 {
-    diff_tree->root = MakeDifferentiation( origin_tree->root, diff_tree );
+    diff_tree->root = MakeDifferentiation( diff_tree, origin_tree->root );
 
     return GOOD_DIFF;
 }
 
 //----Watches on origin node and based on its conten, builds new tree( Doesn't touch origin tree!!! )--
-struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* diff_tree )
+struct Node_t* MakeDifferentiation( struct Tree* diff_tree, struct Node_t* origin_node )
 {
     struct Node_t* ready_node = nullptr; //создаётся на каждой стадии рекурсии и возвращается в конце
     union Data_t data = {};
@@ -59,13 +59,13 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
         case NUM:
         {
             data.num = 0;
-            CreateNode( diff_tree, data, &ready_node, NUM );
+            ready_node = CreateNode( diff_tree, data, NUM );
             break;      
         }
         case VAR:
         {   
             data.num = 1;
-            CreateNode( diff_tree, data, &ready_node, NUM );
+            ready_node = CreateNode( diff_tree, data, NUM );
             break;
         }
         case OP:
@@ -77,12 +77,12 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                 case kAdd:
                 {   
                     data.op = kAdd;
-                    CreateNode( diff_tree, data, &ready_node, OP );
+                    ready_node = CreateNode( diff_tree, data, OP );
 
-                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->left );
                     InsertLeave( diff_tree, ready_node, LEFT, tmp_node );
 
-                    tmp_node = MakeDifferentiation( origin_node->right,  diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
                     InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
                     
                     break;
@@ -90,12 +90,12 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                 case kSub:
                 {
                     data.op = kSub;
-                    CreateNode( diff_tree, data, &ready_node, OP );
+                    ready_node = CreateNode( diff_tree, data, OP );
 
-                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->left );
                     InsertLeave( diff_tree, ready_node, LEFT, tmp_node );
 
-                    tmp_node = MakeDifferentiation( origin_node->right,  diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
                     InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
 
                     break;
@@ -103,29 +103,25 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                 case kMul:
                 {   
                     data.op = kAdd;
-                    CreateNode( diff_tree, data, &ready_node, OP );
+                    ready_node = CreateNode( diff_tree, data, OP );
 
                     //-----------------------LEFT------------------------
                     data.op = kMul;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node, LEFT, tmp_node );
+                    ready_node->left = CreateNode( diff_tree, data, OP );
 
-                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->left );
                     InsertLeave( diff_tree, ready_node->left, LEFT, tmp_node );
 
-                    CopyNode( diff_tree, origin_node->right, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->left, RIGHT, tmp_node );
+                    ready_node->left->right = CopyBranch( diff_tree, origin_node->right );
                     //---------------------------------------------------
 
                     //----------------------RIGHT------------------------
                     data.op = kMul;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node ); 
+                    ready_node->right = CreateNode( diff_tree, data, OP );
 
-                    CopyNode( diff_tree, origin_node->left, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->right, LEFT, tmp_node );
+                    ready_node->right->left = CopyBranch( diff_tree, origin_node->left );
 
-                    tmp_node = MakeDifferentiation( origin_node->right, diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
                     InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
                     //---------------------------------------------------
 
@@ -134,49 +130,41 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                 case kDiv:
                 {
                     data.op = kDiv;
-                    CreateNode( diff_tree, data, &ready_node, OP ); 
+                    ready_node = CreateNode( diff_tree, data, OP ); 
 
                     //--------------------UP LEFT------------------------
                     data.op = kSub;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node, LEFT, tmp_node );
+                    ready_node->left = CreateNode( diff_tree, data, OP );
                     //---------------------------------------------------
 
                     //----------------------LEFT-------------------------
                     data.op = kMul;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node->left, LEFT, tmp_node ); 
+                    ready_node->left->left = CreateNode( diff_tree, data, OP );
 
-                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->left );
                     InsertLeave( diff_tree, ready_node->left->left, LEFT, tmp_node );
 
-                    CopyNode( diff_tree, origin_node->right, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->left->left, RIGHT, tmp_node );
+                    ready_node->left->left->right = CopyBranch( diff_tree, origin_node->right );
                     //---------------------------------------------------
 
                     //---------------------RIGHT-------------------------
                     data.op = kMul;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node->left, RIGHT, tmp_node ); 
+                    ready_node->left->right = CreateNode( diff_tree, data, OP );
 
-                    CopyNode( diff_tree, origin_node->left, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->left->right, LEFT, tmp_node );
+                    ready_node->left->right->left = CopyBranch( diff_tree, origin_node->left ); //TODO: CopyBranch --->> CopyBranch
 
-                    tmp_node = MakeDifferentiation( origin_node->right, diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
                     InsertLeave( diff_tree, ready_node->left->right, RIGHT, tmp_node );
                     //---------------------------------------------------
 
                     //--------------------UP RIGHT-----------------------
                     data.op = kMul;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+                    ready_node->right = CreateNode( diff_tree, data, OP );
 
                     //-------------SQUARE OF DENOMINATOR-----------------
-                    CopyNode( diff_tree, origin_node->right, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->right, LEFT, tmp_node );
-
-                    CopyNode( diff_tree, origin_node->right, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
+                    ready_node->right->left = CopyBranch( diff_tree, origin_node->right ); //TODO: CopyBranch --->> CopyBranch
+ 
+                    ready_node->right->right = CopyBranch( diff_tree, origin_node->right ); //TODO: CopyBranch --->> CopyBranch
                     //---------------------------------------------------
 
                     break;
@@ -185,81 +173,180 @@ struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* dif
                 case kDeg:
                 {
                     data.op = kMul;
-                    CreateNode( diff_tree, data, &ready_node, OP );
-
+                    ready_node = CreateNode( diff_tree, data, OP );
 
                     //--------------------------LEFT---------------------------
-                    CopyNode( diff_tree, origin_node->right, &tmp_node );
-                    InsertLeave( diff_tree, ready_node, LEFT, tmp_node );
+                    ready_node->left = CopyBranch( diff_tree, origin_node->right );
                     
                     //-------------------------RIGHT---------------------------
-
                     data.op = kMul;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+                    ready_node->right = CreateNode( diff_tree, data, OP );
 
-                    tmp_node = MakeDifferentiation( origin_node->left, diff_tree );
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->left );
                     InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
 
                     data.op = kDeg;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node->right, LEFT, tmp_node );
-
-                    CopyNode( diff_tree, origin_node->left, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->right->left, LEFT, tmp_node );
+                    ready_node->right->left = CreateNode( diff_tree, data, OP );
+ 
+                    ready_node->right->left->left = CopyBranch( diff_tree, origin_node->left ); 
 
                     data.op = kSub;
-                    CreateNode( diff_tree, data, &tmp_node, OP );
-                    InsertLeave( diff_tree, ready_node->right->left, RIGHT, tmp_node );
+                    ready_node->right->left->right = CreateNode( diff_tree, data, OP );
 
-                    CopyNode( diff_tree, origin_node->right, &tmp_node );
-                    InsertLeave( diff_tree, ready_node->right->left->right, LEFT, tmp_node );
+                    ready_node->right->left->right->left = CopyBranch( diff_tree, origin_node->right ); 
 
                     data.num = 1;
-                    CreateNode( diff_tree, data, &tmp_node, NUM );
-                    InsertLeave( diff_tree, ready_node->right->left->right, RIGHT, tmp_node );
+                    ready_node->right->left->right->right = CreateNode( diff_tree, data, NUM );
                     
                     break;
                 }
 
                 case kSin:
                 {
-                    
+                    data.op = kMul;
+                    ready_node = CreateNode( diff_tree, data, OP );
+
+                    data.op = kCos;
+                    ready_node->left = CreateNode( diff_tree, data, OP );
+
+                    ready_node->left->right = CopyBranch( diff_tree, origin_node->right );
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+
                     break;
                 }
 
                 case kCos:
                 {
+                    data.op = kMul;
+                    ready_node = CreateNode( diff_tree, data, OP );
+
+                    data.num = -1;
+                    ready_node->left = CreateNode( diff_tree, data, NUM );
+                    
+                    data.op = kMul;
+                    ready_node->right = CreateNode( diff_tree, data, OP );
+
+                    data.op = kSin;
+                    ready_node->right->left = CreateNode( diff_tree, data, OP );
+
+                    ready_node->right->left->right = CopyBranch( diff_tree, origin_node->right ); 
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
 
                     break;
                 }
 
                 case kTg:
                 {
+                    data.op = kMul;
+                    ready_node = CreateNode( diff_tree, data, OP );
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+                    data.op = kDiv;
+                    ready_node->left = CreateNode( diff_tree, data, OP );
+
+                    data.num = 1;
+                    ready_node->left->left = CreateNode( diff_tree, data, NUM );
+
+                    data.op = kDeg;
+                    ready_node->left->right = CreateNode( diff_tree, data, OP );
+
+                    data.op = kCos;
+                    ready_node->left->right->left = CreateNode( diff_tree, data, OP );
+                    ready_node->left->right->left->right = CopyBranch( diff_tree, origin_node->right ); 
+
+                    data.num = 2;
+                    ready_node->left->right->right = CreateNode( diff_tree, data, NUM );
 
                     break;
                 }
 
                 case kCtg:
                 {
+                    data.op = kMul;
+                    ready_node = CreateNode( diff_tree, data, OP );
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+
+                    data.op = kDiv;
+                    ready_node->left = CreateNode( diff_tree, data, OP );
+
+                    data.num = -1;
+                    ready_node->left->left = CreateNode( diff_tree, data, NUM );
+
+                    data.op = kDeg;
+                    ready_node->left->right = CreateNode( diff_tree, data, OP );
+
+                    data.op = kSin;
+                    ready_node->left->right->left = CreateNode( diff_tree, data, OP );
+
+                    ready_node->left->right->left->right = CopyBranch( diff_tree, origin_node->right ); 
+
+                    data.num = 2;
+                    ready_node->left->right->right = CreateNode( diff_tree, data, NUM );
 
                     break;
                 }
 
                 case kLog:
                 {
+                    data.op = kMul;
+                    ready_node = CreateNode( diff_tree, data, OP );
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+
+                    data.op = kDiv;
+                    ready_node->left = CreateNode( diff_tree, data, OP );
+
+                    data.num = 1;
+                    ready_node->left->left = CreateNode( diff_tree, data, NUM );
+
+                    data.op = kMul;
+                    ready_node->left->right =  CreateNode( diff_tree, data, OP );
+
+                    ready_node->left->right->left = CopyBranch( diff_tree, origin_node->right );
+
+                    data.op = kLn;
+                    ready_node->left->right->right = CreateNode( diff_tree, data, OP );
+
+                    ready_node->left->right->right->right = CopyBranch( diff_tree, origin_node->left );
 
                     break;
                 }
 
                 case kLn:
                 {
+                    data.op = kMul;
+                    ready_node = CreateNode( diff_tree, data, OP );
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+
+                    data.op = kDiv;
+                    ready_node->left = CreateNode( diff_tree, data, OP );
+
+                    data.num = 1;
+                    ready_node->left->left = CreateNode( diff_tree, data, NUM );
+                    ready_node->left->right = CopyBranch( diff_tree, origin_node->right );
 
                     break;
                 }
 
                 case kExp:
-                {
+                {   
+                    data.op = kMul;
+                    ready_node = CreateNode( diff_tree, data, OP );
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node, RIGHT, tmp_node );
+
+                    ready_node->left = CopyBranch( diff_tree, origin_node ); 
 
                     break;
                 }

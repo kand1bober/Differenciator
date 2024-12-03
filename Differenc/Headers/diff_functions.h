@@ -12,6 +12,6 @@ enum DiffInfo
 
 enum DiffInfo Run();
 enum DiffInfo Differentiate( struct Tree* origin_tree, struct Tree* diff_tree );
-struct Node_t* MakeDifferentiation( struct Node_t* origin_node, struct Tree* diff_tree );
+struct Node_t* MakeDifferentiation( struct Tree* diff_tree, struct Node_t* origin_node );
 
 #endif
