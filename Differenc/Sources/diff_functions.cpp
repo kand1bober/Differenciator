@@ -1,4 +1,5 @@
 #include "../Headers/diff_functions.h"
+#include "../Headers/diff_simplifier.h"
 
 enum DiffInfo Run()
 {
@@ -16,7 +17,6 @@ enum DiffInfo Run()
     MakeTreeData( &graph_file, &tree_input, &my_tree );
 
     Differentiate( &my_tree, &diff_tree );
-
 
     //----( probably not needed in differenciator )------
     // TreeData( &my_tree, &tree_output );
@@ -44,6 +44,8 @@ enum DiffInfo Run()
 enum DiffInfo Differentiate( struct Tree* origin_tree, struct Tree* diff_tree )
 {
     diff_tree->root = MakeDifferentiation( diff_tree, origin_tree->root );
+
+    // TreeSimplifie( diff_tree );
 
     return GOOD_DIFF;
 }
@@ -151,7 +153,7 @@ struct Node_t* MakeDifferentiation( struct Tree* diff_tree, struct Node_t* origi
                     data.op = kMul;
                     ready_node->left->right = CreateNode( diff_tree, data, OP );
 
-                    ready_node->left->right->left = CopyBranch( diff_tree, origin_node->left ); //TODO: CopyBranch --->> CopyBranch
+                    ready_node->left->right->left = CopyBranch( diff_tree, origin_node->left ); 
 
                     tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
                     InsertLeave( diff_tree, ready_node->left->right, RIGHT, tmp_node );
@@ -162,9 +164,9 @@ struct Node_t* MakeDifferentiation( struct Tree* diff_tree, struct Node_t* origi
                     ready_node->right = CreateNode( diff_tree, data, OP );
 
                     //-------------SQUARE OF DENOMINATOR-----------------
-                    ready_node->right->left = CopyBranch( diff_tree, origin_node->right ); //TODO: CopyBranch --->> CopyBranch
+                    ready_node->right->left = CopyBranch( diff_tree, origin_node->right ); 
  
-                    ready_node->right->right = CopyBranch( diff_tree, origin_node->right ); //TODO: CopyBranch --->> CopyBranch
+                    ready_node->right->right = CopyBranch( diff_tree, origin_node->right ); 
                     //---------------------------------------------------
 
                     break;
@@ -361,3 +363,5 @@ struct Node_t* MakeDifferentiation( struct Tree* diff_tree, struct Node_t* origi
     //финальный, возвращает указатель, который фактически указатель на diff_tree->root
     return ready_node;
 }
+
+

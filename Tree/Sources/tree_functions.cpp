@@ -384,7 +384,7 @@ enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct No
             ON_DEBUG( printf(YELLOW "Pointers don't connect\n" DELETE_COLOR); )
         }   
     }
-    if( (left == nullptr) && (right == nullptr) ) //TODO: этот пункт пока хз
+    if( (left == nullptr) && (right == nullptr) ) 
     {
         printf(RED "Two null pointers pasted -- means yout parent node have no leaves.\n"
         "free is used to avoid memory leaks\n"
@@ -470,7 +470,7 @@ void FreeTree( struct Tree* tree, struct Node_t* node )
 }
 
 
-enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type ) 
+enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type ) 
 {
     if( node )
     {
@@ -713,40 +713,6 @@ enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct N
 }
 
 
-enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src )
-{
-    if( to_replace->parent->left == to_replace )
-    {
-        to_replace->parent->left = src;
-    }
-    else if( to_replace->parent->right == to_replace )
-    {
-        to_replace->parent->right = src;    
-    }
-    else
-    {
-        printf(RED "unknown problem in %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
-        exit(0);
-    }
-
-    src->parent = to_replace->parent;
-    src->left = to_replace->left;
-    src->right = to_replace->right;
-
-    switch( (int)to_replace->type )
-    {
-        case NUM:
-        {
-            //TODO: функция не доделана
-            break;
-        }
-    }
-
-    free( to_replace );
-
-    return GOOD_INSERT;
-}
-
 struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy )
 {
     struct Node_t* tmp_node = nullptr;
@@ -767,3 +733,43 @@ struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy )
 }
 
 
+enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src )
+{
+    assert( to_replace );
+    assert( src );
+
+    /* //TODO: доделать кагда исправлю CreateNode()
+    if( to_replace->parent->left == to_replace )
+    {
+        to_replace->parent->left = src;
+    }
+    else if( to_replace->parent->right == to_replace )
+    {
+        to_replace->parent->right = src;    
+    }
+    else
+    {
+        printf(RED "unknown problem in %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
+        exit(0);
+    }
+    */
+    src->parent = to_replace->parent;
+    src->left = to_replace->left;
+    src->right = to_replace->right;
+
+    if( to_replace->left != nullptr )
+    {
+        to_replace->left->parent = src;
+    }
+
+    if( to_replace->right != nullptr )
+    {
+        to_replace->right->parent = src;
+    }
+
+    //Deletion of node
+    free( to_replace );
+
+    return GOOD_INSERT;
+}
+    

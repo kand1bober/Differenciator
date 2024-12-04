@@ -159,14 +159,14 @@ enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t*
 
 struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy );
 
-enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
+enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
 enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
 enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
 enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src );
 struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy );
 
 //----------------------------FIND FUNCTIONS----------------------------------------
-enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type ); //TODO: переделать 
+enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type );
 enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct Node_t** answer );
 enum TreeErrors FindOpNode( struct Node_t* node_search, enum Operations to_find, struct Node_t** answer );
 enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct Node_t** answer );

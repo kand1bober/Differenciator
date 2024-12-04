@@ -162,13 +162,13 @@ Node_t* GetT( struct ParserSrc* src )
 
 Node_t* GetD( struct ParserSrc* src )
 {
-    struct Node_t* val = GetSL( src ); //TODO: S | L
+    struct Node_t* val = GetSL( src ); 
 
     while( src->s[src->p] == '^' )
     {
         int op = src->p;
         src->p++;
-        struct Node_t* val2 = GetSL( src ); //TODO: S | L
+        struct Node_t* val2 = GetSL( src ); 
 
         struct Node_t* tmp_node = nullptr;
         union Data_t value = {};
