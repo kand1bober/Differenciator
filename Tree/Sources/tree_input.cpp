@@ -78,7 +78,7 @@ Node_t* GetE( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kAdd;
-            tmp_node = CreateNode( src->tree, value, OP );
+            tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
 
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -94,7 +94,7 @@ Node_t* GetE( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kSub;
-            tmp_node = CreateNode( src->tree, value, OP );
+            tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
 
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -124,7 +124,7 @@ Node_t* GetT( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kMul;
-            tmp_node = CreateNode( src->tree, value, OP );
+            tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
             // val *= val2;
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -140,7 +140,7 @@ Node_t* GetT( struct ParserSrc* src )
             struct Node_t* tmp_node = nullptr;
             union Data_t value = {};
             value.op = kDiv;
-            tmp_node = CreateNode( src->tree, value, OP );
+            tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
             // val *= val2;
             InsertLeave( src->tree, tmp_node, LEFT, val );
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -173,7 +173,7 @@ Node_t* GetD( struct ParserSrc* src )
         struct Node_t* tmp_node = nullptr;
         union Data_t value = {};
         value.op = kDeg;
-        tmp_node = CreateNode( src->tree, value, OP );
+        tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
 
         InsertLeave( src->tree, tmp_node, LEFT, val );
         InsertLeave( src->tree, tmp_node, RIGHT, val2 );
@@ -216,7 +216,7 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     value.op = kSin;
-                    val = CreateNode( src->tree, value, OP );
+                    val = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else 
@@ -252,7 +252,7 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     value.op = kCos;
-                    val = CreateNode( src->tree, value, OP );
+                    val = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
@@ -278,7 +278,7 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     value.op = kCtg;
-                    val = CreateNode( src->tree, value, OP );
+                    val = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
@@ -315,7 +315,7 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     value.op = kTg;
-                    val = CreateNode( src->tree, value, OP );
+                    val = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
@@ -351,7 +351,7 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     value.op = kExp;
-                    val = CreateNode( src->tree, value, OP );
+                    val = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
                 else
@@ -398,7 +398,7 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     value.op = kLog;
-                    val = CreateNode( src->tree, value, OP );
+                    val = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
                     InsertLeave( src->tree, val, LEFT, val1 );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
@@ -425,7 +425,7 @@ Node_t* GetSL( struct ParserSrc* src )
                     src->p++;
 
                     value.op = kLn;
-                    val = CreateNode( src->tree, value, OP );
+                    val = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
                     InsertLeave( src->tree, val, RIGHT, val2 );
                 }
             }
@@ -493,7 +493,7 @@ Node_t* GetN( struct ParserSrc* src )
     struct Node_t* new_node = nullptr;
     union Data_t value = {};
     value.num = (double)val;
-    new_node = CreateNode( src->tree, value, NUM );
+    new_node = CreateNode( src->tree, NULL, NULL, NULL, value, NUM );
     return new_node;
 }
 
@@ -510,7 +510,7 @@ Node_t* GetV( struct ParserSrc* src )
     struct Node_t* new_node = nullptr;
     union Data_t value = {};
     value.var = val;
-    new_node = CreateNode( src->tree, value, VAR );
+    new_node = CreateNode( src->tree, NULL, NULL, NULL, value, VAR );
     return new_node;
 }
 

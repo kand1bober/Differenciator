@@ -18,6 +18,7 @@ void TreeSimplifie( struct Tree* tree )
 
         OpSimplifie( &src, tree->root );
 
+        // return;
     }
 
     return;
@@ -58,7 +59,8 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
     {
         if( node->left->type == NUM && node->right->type == NUM )
         {
-            union Data_t data = {};
+            src->data = {};
+            src->type = NUM;
 
             printf(YELLOW "HUY: %d\n" DELETE_COLOR, node->type );
 
@@ -66,62 +68,63 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
             {
                 case kAdd:
                 {
-                    data.num = node->left->data.num + node->right->data.num;
+                    src->data.num = node->left->data.num + node->right->data.num;
                     break;
                 }
                 case kSub:
                 {
-                    data.num = node->left->data.num - node->right->data.num;
+                    src->data.num = node->left->data.num - node->right->data.num;
+                    // printf("%p  '%c'  res: %lf\n", node, node->data.op, data.num);
                     break;
                 }
                 case kMul:
                 {
-                    data.num = node->left->data.num * node->right->data.num;
+                    src->data.num = node->left->data.num * node->right->data.num;
                     break;
                 }
                 case kDiv:
                 {
-                    data.num = node->left->data.num / node->right->data.num;
+                    src->data.num = node->left->data.num / node->right->data.num;
                     break;
                 }
                 case kDeg:
                 {
-                    data.num = pow( node->left->data.num, node->right->data.num );
+                    src->data.num = pow( node->left->data.num, node->right->data.num );
                     break;
                 }
                 case kSin:
                 {
-                    data.num = sin( node->right->data.num ); //TODO: пересмотреть 
+                    src->data.num = sin( node->right->data.num ); //TODO: пересмотреть 
                     break;
                 }
                 case kCos:
                 {
-                    data.num = cos( node->right->data.num ); //TODO: пересмотреть 
+                    src->data.num = cos( node->right->data.num ); //TODO: пересмотреть 
                     break;
                 }
                 case kTg:
                 {
-                    data.num = tan( node->right->data.num ); //TODO: пересмотреть 
+                    src->data.num = tan( node->right->data.num ); //TODO: пересмотреть 
                     break;
                 }
                 case kCtg:
                 {
-                    data.num = pow( tan( node->right->data.num ), -1 ); //TODO: пересмотреть 
+                    src->data.num = pow( tan( node->right->data.num ), -1 ); //TODO: пересмотреть 
                     break;
                 }
                 case kLn:
                 {
-                    data.num = log( node->right->data.num ); 
+                    src->data.num = log( node->right->data.num ); 
                     break;
                 }
                 case kLog:
                 {
-                    data.num = log( node->left->data.num ) / log( node->right->data.num ); 
+                    src->data.num = log( node->left->data.num ) / log( node->right->data.num ); 
                     break;
                 }
                 case kExp:
                 {
-                    data.num = exp( node->right->data.num ); 
+                    src->data.num = exp( node->right->data.num ); 
                     break;
                 }
                 default:
@@ -132,7 +135,7 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
                 }
             }
 
-            NodeSimplifie( src, node, data );
+            NodeSimplifie( src, &node );
         }
     }
 
@@ -149,12 +152,19 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
     return;
 }
 
-void NodeSimplifie( struct SimpleSrc* src, struct Node_t* node, union Data_t data )
+void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node )
 {
-        printf(YELLOW "Simplifying\n" DELETE_COLOR );
-        struct Node_t* tmp_node = nullptr;
-        tmp_node = CreateNode( src->tree, data, NUM );
-        ReplaceNode( node, tmp_node );
+    printf(YELLOW "Simplifying\n" DELETE_COLOR );
 
-        src->change_count = CHANGE;
+    struct Node_t* tmp_node = nullptr;
+
+    tmp_node = CreateNode(src->tree, NULL, NULL, NULL, src->data, src->type);
+
+    ReplaceNode( src->tree, node, &tmp_node );
+
+    printf("%p res: %lf\n", node, src->data.num);
+
+    src->change_count = CHANGE;
+
+    return;
 }

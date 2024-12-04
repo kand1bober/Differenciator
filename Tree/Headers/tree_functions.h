@@ -152,7 +152,7 @@ enum TreeErrors TreeDtor( struct Tree* tree );
 void FreeTree( struct Tree* tree, struct Node_t* node ); //-------- recursive
 
 //--------------------------------OPERATIONS WITH NODES----------------------------------
-struct Node_t* CreateNode( struct Tree* tree, Data_t data, enum Node_types type );
+struct Node_t* CreateNode( struct Tree* tree, struct Node_t* left, struct Node_t* right, struct Node_t* parent, Data_t data, enum Node_types type );
 enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t** new_node );
 enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, struct Node_t** new_node );
 enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t** new_node );
@@ -162,8 +162,8 @@ struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy );
 enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
 enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
 enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
-enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src );
-struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy );
+enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, struct Node_t** src );
+struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy, struct Node_t* parent );
 
 //----------------------------FIND FUNCTIONS----------------------------------------
 enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type );

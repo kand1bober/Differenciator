@@ -11,7 +11,7 @@ enum TreeErrors TreeDtor( struct Tree* tree )
 
 
 //=========================== CREATE NODE =====================================
-struct Node_t* CreateNode( struct Tree* tree, Data_t data, enum Node_types type )
+struct Node_t* CreateNode( struct Tree* tree, struct Node_t* left, struct Node_t* right, struct Node_t* parent, Data_t data, enum Node_types type )
 {
     assert( tree );
 
@@ -40,6 +40,10 @@ struct Node_t* CreateNode( struct Tree* tree, Data_t data, enum Node_types type 
             break;
         }
     }
+
+    new_node->left = left;
+    new_node->right = right;
+    new_node->parent = parent;
 
     return new_node;
 }   
@@ -164,41 +168,6 @@ enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t*
     }
 }   
 //=============================================================================
-
-//---------- Tree* tree --- is where to add copied node ------------
-struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy )
-{
-    assert( tree );
-    assert( node_to_copy );
-
-    struct Node_t* answer = nullptr;
-
-    union Data_t data = {};
-    switch( (int)node_to_copy->type )
-    {
-        case NUM:
-        {
-            data.num = node_to_copy->data.num;
-            answer = CreateNode( tree, data, NUM );
-            break;
-        }
-        case VAR:
-        {
-            data.var = node_to_copy->data.var;
-            answer = CreateNode( tree, data,  VAR );
-            break;
-        }
-        case OP:
-        {
-            data.op = node_to_copy->data.op;
-            answer = CreateNode( tree, data, OP );
-            break;
-        }
-    }  
-
-    return answer;
-}
-
 
 //---------------------------TREE STRINGS FUNCTIONS----------------------------
 enum TreeErrors FindString( struct Tree* tree, char* to_find, int* string_position )
@@ -712,64 +681,111 @@ enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct N
     return BAD_FIND;
 }
 
+//---------- Tree* tree --- is where to add copied node ------------
+struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy )
+{
+    assert( tree );
+    assert( node_to_copy );
 
-struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy )
+    struct Node_t* answer = nullptr;
+
+    union Data_t data = {};
+    switch( (int)node_to_copy->type )
+    {
+        case NUM:
+        {
+            data.num = node_to_copy->data.num;
+            answer = CreateNode( tree, NULL, NULL, NULL, data, NUM );
+            break;
+        }
+        case VAR:
+        {
+            data.var = node_to_copy->data.var;
+            answer = CreateNode( tree, NULL, NULL, NULL, data, VAR );
+            break;
+        }
+        case OP:
+        {
+            data.op = node_to_copy->data.op;
+            answer = CreateNode( tree, NULL, NULL, NULL, data, OP );
+            break;
+        }
+    }  
+
+    return answer;
+}
+
+
+struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy, struct Node_t* parent )
 {
     struct Node_t* tmp_node = nullptr;
 
     tmp_node = CopyNode( tree, to_copy );
-    
+    tmp_node->parent = parent;
+
     if( to_copy->left != nullptr )
     {
-        tmp_node->left = CopyBranch( tree, to_copy->left );
+        tmp_node->left = CopyBranch( tree, to_copy->left, tmp_node );
     }
 
     if( to_copy->right != nullptr )
     {
-        tmp_node->right = CopyBranch( tree, to_copy->right );
+        tmp_node->right = CopyBranch( tree, to_copy->right, tmp_node );
     }
 
     return tmp_node;
 }
 
 
-enum TreeErrors ReplaceNode( struct Node_t* to_replace, struct Node_t* src )
+enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, struct Node_t** src )
 {
     assert( to_replace );
     assert( src );
 
-    /* //TODO: доделать кагда исправлю CreateNode()
-    if( to_replace->parent->left == to_replace )
+    //TODO: доделать кагда исправлю CreateNode()
+    if( (*to_replace)->parent->left == (*to_replace) )
     {
-        to_replace->parent->left = src;
+        (*to_replace)->parent->left = (*src);
     }
-    else if( to_replace->parent->right == to_replace )
+    else if( (*to_replace)->parent->right == (*to_replace) )
     {
-        to_replace->parent->right = src;    
+        (*to_replace)->parent->right = (*src);    
     }
     else
     {
         printf(RED "unknown problem in %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
         exit(0);
     }
+    
+    /* РАЮОТА С ДЕТЬМИ, КОТОРЫХ МНЕ НУЖНО ПРОСТО УДАЛИТЬ 
+    (*src)->parent = (*to_replace)->parent;
+    (*src)->left = (*to_replace)->left;
+    (*src)->right = (*to_replace)->right;
+
+    if( (*to_replace)->left != nullptr )
+    {
+        (*to_replace)->left->parent = (*src);
+    }
+
+    if( (*to_replace)->right != nullptr )
+    {
+        (*to_replace)->right->parent = (*src);
+    }
     */
-    src->parent = to_replace->parent;
-    src->left = to_replace->left;
-    src->right = to_replace->right;
 
-    if( to_replace->left != nullptr )
-    {
-        to_replace->left->parent = src;
-    }
-
-    if( to_replace->right != nullptr )
-    {
-        to_replace->right->parent = src;
-    }
+    // (*src)->left = nullptr;
+    // (*src)->right = nullptr;
 
     //Deletion of node
-    free( to_replace );
+    FreeTree( tree, (*to_replace) );
+
+
+    //---exchange---
+    struct Node_t* ex_node = nullptr;
+    ex_node = (*src);
+    src = to_replace;
+    (*to_replace) = ex_node;
+    //--------------
 
     return GOOD_INSERT;
 }
-    
