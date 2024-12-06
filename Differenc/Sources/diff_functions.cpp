@@ -1,17 +1,18 @@
 #include "../Headers/diff_functions.h"
 #include "../Headers/diff_simplifier.h"
+#include "../Headers/diff_tex_output.h"
 
 enum DiffInfo Run()
 {
     // ------------Initialize------------
     struct File_text tree_input = {}; //for input
-    struct File_text tree_output = {};   // for output
+    // struct File_text tree_output = {};   // for output
     struct File_text graph_file = {};  //for inpit
     struct Tree my_tree = {};
 
-    struct File_text diff_tree_input = {}; 
-    struct File_text diff_tree_output = {};   
-    struct File_text diff_graph_file = {};  
+    // struct File_text diff_tree_input = {}; 
+    // struct File_text diff_tree_output = {};   
+    // struct File_text diff_graph_file = {};  
     struct Tree diff_tree = {};
 
     MakeTreeData( &graph_file, &tree_input, &my_tree );
@@ -25,8 +26,9 @@ enum DiffInfo Run()
     //-----------------PRINTING------------------
     if(my_tree.status == GOOD_TREE)
     {
-        // Output( &graph_file, &my_tree);
-        Output( &diff_graph_file, &diff_tree);
+        // Output( &my_tree);
+        DotOutput( &diff_tree );
+        TexOutput( &diff_tree );
     }
     else 
     {

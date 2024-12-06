@@ -2,6 +2,9 @@
 CC = g++
 CFLAGS = -fsanitize=address,undefined -D _DEBUG -O0 -Wall -Wextra
 
+SOURCES_LATEX_DIR = diff_Latex_src
+TO_REMOVE_LATEX = $(wildcard $(SOURCES_LATEX_DIR)/*.* )
+
 SOURCES_DIR_DIFF = Sources
 SOURCES_DIR_TREE = ../Tree/Sources
 
@@ -27,3 +30,4 @@ $(EXECUTABLE): $(OBJECTS_DIFF) $(OBJECTS_TREE)
 
 clean:
 	@rm  -rf  $(SOURCES_DIFF/*.o) $(SOURCES_TREE/*.o)  $(EXECUTABLE)  ../Tree/TreeGraphh.dot  ../Tree/TreeGraph.svg  ../Tree/TreeGraph.html
+	@rm  -rf  $(TO_REMOVE_LATEX)
