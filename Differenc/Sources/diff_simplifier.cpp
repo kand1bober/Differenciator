@@ -8,51 +8,30 @@ void TreeSimplifie( struct Tree* tree )
     src.tree = tree;
     src.change_count = CHANGE;
 
+    int i = 0;
     while( src.change_count == CHANGE )
     {
         src.change_count = NO_CHANGE;
 
-        // VarSimplifie( &src, tree->root );
-
-        // NumSimplifie( &src, tree->root );
+        // //------------------------------
+        // printf(GREEN "iteration: %d\n" DELETE_COLOR, i );
+        // struct File_text graph_file = {}; 
+        // Output( &graph_file, tree);
+        // getchar();
+        // //------------------------------
 
         OpSimplifie( &src, tree->root );
 
         // return;
+        i++;
     }
 
     return;
 }
 
-void VarSimplifie( struct SimpleSrc* src, struct Node_t* node )
-{
-    // if(  )
-    // {
-        
-    // }
-    // else if( )
-    // {
-    
-    // }
-    //...
-}       
-
-void NumSimplifie( struct SimpleSrc* src, struct Node_t* node )
-{
-    // if( )
-    // {
-
-    // }
-    // else if()
-    // {
-    
-    // }
-    //...
-}
-
 void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
 {
-    printf(SINIY "node: %p\n\n" DELETE_COLOR, node );
+    // printf(SINIY "node: %p\n" DELETE_COLOR, node );
 
     if( node->left  != nullptr && node->left->left  == nullptr && node->left->right  == nullptr && 
         node->right != nullptr && node->right->left == nullptr && node->right->right == nullptr )
@@ -131,79 +110,59 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
                     break;
                 }
             }
-            printf(YELLOW "ariphmetic: \n" DELETE_COLOR);
-            NodeSimplifie( src, &node );
+            NodeSimplifie( src, &node );      
         }
+
     } 
-    else if( node != nullptr && node->left != nullptr && node->right != nullptr )
+
+    //-----------------ЛЮБОЙ ДРУГОЙ УЗЕЛ!!!!!------------------
+    if( node->left != nullptr && node->right != nullptr ) 
     {   
-        if( node->type == OP && ( node->data.op == kMul || node->data.op == kDiv ) )
+        if( ( node->type == OP ) && ( node->data.op == kMul || node->data.op == kDiv ) && ( node->right->type == NUM ) && ( fabs( node->right->data.num - 1 ) < EPSILON ) )
         {
-            if( node->right->type == NUM && fabs( node->right->data.num - 1) < EPSILON )
-            {
-                // Right 1
-                printf(YELLOW "mul/div 1: \n" DELETE_COLOR);
-                ReplaceNode( src->tree, &node, &(node->left), src );
-            }
-            else if( node->left->type == NUM && fabs( node->left->data.num - 1) < EPSILON )
-            {
-                // Left 1
-                printf(YELLOW "mul/div 1: \n" DELETE_COLOR);
-                ReplaceNode( src->tree, &node, &(node->right), src );
-            }
+            ReplaceNode( &node, &(node->left), src );
         }
-
+        else if( ( node->type == OP ) && ( node->data.op == kMul || node->data.op == kDiv ) && ( node->left->type == NUM ) && ( fabs( node->left->data.num - 1 ) < EPSILON ) )
+        {
+            ReplaceNode( &node, &(node->right), src );
+        }
+        
         // ----Add/Sub 0----
-        else if(  node->type == OP && ( node->data.op == kAdd || node->data.op == kSub ) )
+        else if( ( node->type == OP ) && ( node->data.op == kAdd || node->data.op == kSub ) && ( node->right->type == NUM ) && ( fabs( node->right->data.num - 0 ) < EPSILON ) ) 
         {
-            if( node->right->type == NUM && fabs( node->right->data.num - 0) < EPSILON )
-            {
-                // Right 0
-                printf(YELLOW "add/sub 0: \n" DELETE_COLOR);
-                ReplaceNode( src->tree, &node, &(node->left), src );
-            }
-            else if( node->left->type == NUM && fabs( node->left->data.num - 0) < EPSILON )
-            {
-                // Left 0
-                printf(YELLOW "add/sub 0: \n" DELETE_COLOR);
-                ReplaceNode( src->tree, &node, &(node->right), src );
-            }
+            ReplaceNode( &node, &(node->left), src );
         }
-
-        // // ----Mul on 0----
-        else if( node->type == OP && node->data.op == kMul )
+        else if( ( node->type == OP ) && ( node->data.op == kAdd || node->data.op == kSub ) && ( node->left->type == NUM ) && ( fabs( node->left->data.num - 0 ) < EPSILON ) )
         {
-            if( node->left->type == NUM && fabs( node->left->data.num ) < EPSILON )
-            {   
-                // Left 0
-                printf("Simplifying multiplying on null\n");
-                src->type = NUM;
-                src->data.num = 0;
-
-                NodeSimplifie( src, &node );
-            }
-            else if( node->right->type == NUM && fabs( node->right->data.num ) < EPSILON )
-            {
-                // Right 0
-                printf("Simplifying multiplying on null\n");
-                src->type = NUM;
-                src->data.num = 0;
-
-                NodeSimplifie( src, &node );
-            }
+            ReplaceNode( &node, &(node->right), src );
         }
-
-        //----Warning----
-        else if( node->type == OP && ( node->data.op == kDiv) )
+    
+        // ----Mul on 0----
+        else if( ( node->type == OP ) && ( node->data.op == kMul ) && ( node->left->type == NUM ) && ( fabs( node->left->data.num - 0 ) < EPSILON ) )
         {
-            printf(RED "==== Warning: Dividing by zero ====\n"
-                       "====          Closing Programm ====\n\n" DELETE_COLOR);
-            exit(0);
+            ReplaceNode( &node, &(node->left), src );
+        }
+    
+        else if( ( node->type == OP ) && ( node->data.op == kMul ) && ( node->right->type == NUM ) && ( fabs( node->right->data.num - 0 ) < EPSILON ) )
+        {
+            ReplaceNode( &node, &(node->right), src );
+        }
+        // ----Deg 1----
+        else if( ( node->type == OP ) && ( node->data.op == kDeg ) && ( node->right->type == NUM ) && ( fabs( node->right->data.num - 1 ) < EPSILON ) )
+        {       
+            ReplaceNode( &node, &(node->left), src );
+        }
+        // ----Deg 0----
+        else if( ( node->type == OP ) && ( node->data.op == kDeg ) && ( node->right->type == NUM ) && ( fabs( node->right->data.num - 0 ) < EPSILON ) )
+        {
+            src->type = NUM;
+            src->data.num = 1;
+
+            NodeSimplifie( src, &node );
         }
     }
 
-    printf("Nothing... going to sons\n");
-
+        // printf(" going to sons\n\n");
     if( node->left != nullptr )
     {
         OpSimplifie( src, node->left );
@@ -219,27 +178,22 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
 
 void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node )
 {
-    // ON_DEBUG( printf(YELLOW "Simplifying\n" DELETE_COLOR ) );
-
     struct Node_t* tmp_node = nullptr;
     tmp_node = CreateNode(src->tree, NULL, NULL, NULL, src->data, src->type);
-    ReplaceNode( src->tree, node, &tmp_node, src );
-    src->change_count = CHANGE;
-
-    // ON_DEBUG( printf("%p res: %lf\n", node, src->data.num); );
+    ReplaceNode( node, &tmp_node, src );
 
     return;
 }
 
 
-enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, struct Node_t** src, struct SimpleSrc* simple_status )
+enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_node, struct SimpleSrc* src )
 {   
 
     assert( *to_replace );
-    assert( *src );
+    assert( *new_node );
 
     // //-----------DEBUG--------------
-    // printf(SINIY "%p %p\n\n" DELETE_COLOR, (*to_replace), (*src) );
+    // printf(SINIY "%p %p\n\n" DELETE_COLOR, (*to_replace), (*new_node) );
     // struct File_text graph_file = {}; 
     // Output( &graph_file, tree);
     // getchar();
@@ -253,11 +207,11 @@ enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, stru
     {
         if( (*to_replace)->parent->left == (*to_replace) )
         {
-            (*to_replace)->parent->left = (*src);
+            (*to_replace)->parent->left = (*new_node);
         }
         else if( (*to_replace)->parent->right == (*to_replace) )
         {
-            (*to_replace)->parent->right = (*src);    
+            (*to_replace)->parent->right = (*new_node);    
         }
         else
         {
@@ -271,86 +225,87 @@ enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, stru
     {
         type_status = ROOT;
     }   
-    (*src)->parent = (*to_replace)->parent;
+    (*new_node)->parent = (*to_replace)->parent;
 
 
-    if( (*to_replace)->left == (*src) )
+    if( (*to_replace)->left == (*new_node) )
     {
         if( type_status == ROOT )
         {
             (*to_replace)->parent = nullptr;
     
             struct Node_t* tmp_node = nullptr;
-            tmp_node = (*src);
+            tmp_node = (*new_node);
 
             (*to_replace)->left = nullptr;
-            FreeTree( tree, (*to_replace) );
+            FreeTree( src->tree, (*to_replace) );
 
             //----exchange-------     //TODO: скорее всего, такого даже не бывает, пока не проверено, скорее всего работает
             (*to_replace) = tmp_node;
-            tree->root = tmp_node;
+            src->tree->root = tmp_node;
         }
         else 
         {
             (*to_replace)->parent = nullptr;
     
             struct Node_t* tmp_node = nullptr;
-            tmp_node = (*src);
+            tmp_node = (*new_node);
 
             (*to_replace)->left = nullptr;
-            FreeTree( tree, (*to_replace) );
+            FreeTree( src->tree, (*to_replace) );
 
             (*to_replace) = tmp_node;
         }
     }
-    else if( (*to_replace)->right == (*src) )
+    else if( (*to_replace)->right == (*new_node) )
     {
         if( type_status == ROOT )
         {
             struct Node_t* tmp_node = nullptr;
-            tmp_node = (*src);
+            tmp_node = (*new_node);
             
             (*to_replace)->right = nullptr;
-            FreeTree( tree, (*to_replace) );
+            FreeTree( src->tree, (*to_replace) );
 
             //----exchange-------     //TODO: скорее всего, такого даже не бывает, пока не проверено, скорее всего работает
             (*to_replace) = tmp_node;
-            tree->root = tmp_node;
+            src->tree->root = tmp_node;
         }   
         else 
         {
             (*to_replace)->parent = nullptr;
 
             struct Node_t* tmp_node = nullptr;
-            tmp_node = (*src);
+            tmp_node = (*new_node);
             
             (*to_replace)->right = nullptr;
-            FreeTree( tree, (*to_replace) );
+            FreeTree( src->tree, (*to_replace) );
 
             //----exchange-------
             (*to_replace) = tmp_node;
         }
     }
-    else if(  (*to_replace)->left != (*src) && (*to_replace)->right != (*src) )
+    else if(  (*to_replace)->left != (*new_node) && (*to_replace)->right != (*new_node) )
     {
         if( type_status == ROOT )
         {
-            FreeTree( tree, (*to_replace) );
+            FreeTree( src->tree, (*to_replace) );
 
             //----exchange-------
-            (*to_replace) = (*src);
-            tree->root = (*src);
+            (*to_replace) = (*new_node);
+            src->tree->root = (*new_node);
         }
         else 
         {
-            FreeTree( tree, (*to_replace) );
+            FreeTree( src->tree, (*to_replace) );
 
             //----exchange-------
-            (*to_replace) = (*src);
+            (*to_replace) = (*new_node);
         }
     }
     
-    simple_status->change_count = CHANGE;
+    // printf(RED "    changing    \n" DELETE_COLOR);
+    src->change_count = CHANGE;
 
     return GOOD_INSERT;
 }
