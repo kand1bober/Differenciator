@@ -162,7 +162,6 @@ struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy );
 enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
 enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
 enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
-enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, struct Node_t** src );
 struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy, struct Node_t* parent );
 
 //----------------------------FIND FUNCTIONS----------------------------------------

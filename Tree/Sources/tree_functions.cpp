@@ -1,5 +1,6 @@
 #include "../Headers/tree_functions.h"
 #include "../../Differenc/Headers/diff_functions.h"
+#include <cstddef>
 
 enum TreeErrors TreeDtor( struct Tree* tree )
 {
@@ -747,65 +748,4 @@ struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy, struct Nod
     }
 
     return tmp_node;
-}
-
-
-enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, struct Node_t** src )
-{   
-    assert( *to_replace );
-    assert( *src );
-
-    if( (*to_replace)->parent->left == (*to_replace) )
-    {
-        (*to_replace)->parent->left = (*src);
-    }
-    else if( (*to_replace)->parent->right == (*to_replace) )
-    {
-        (*to_replace)->parent->right = (*src);    
-    }
-    else
-    {
-        printf(RED "unknown problem in %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
-        exit(0);
-    }
-    (*src)->parent = (*to_replace)->parent;
-
-
-    if( (*to_replace)->left == (*src) )
-    {
-        (*to_replace)->parent = nullptr;
- 
-        struct Node_t* tmp_node = nullptr;
-        tmp_node = (*src);
-
-        (*to_replace)->left = nullptr;
-        FreeTree( tree, (*to_replace) );
-
-        (*to_replace) = tmp_node;
-    }
-    else if( (*to_replace)->right == (*src) )
-    {
-        (*to_replace)->parent = nullptr;
-
-        struct Node_t* tmp_node = nullptr;
-        tmp_node = (*src);
-        
-        (*to_replace)->right = nullptr;
-        FreeTree( tree, (*to_replace) );
-
-        (*to_replace) = tmp_node;
-    }
-    else if(  (*to_replace)->left != (*src) && (*to_replace)->right != (*src) )
-    {
-        FreeTree( tree, (*to_replace) );
-
-        //----exchange-------
-        struct Node_t* ex_node = nullptr;
-        ex_node = (*src);
-        (*src) = (*to_replace);
-        (*to_replace) = ex_node;
-        //-------------------
-    }
-
-    return GOOD_INSERT;
 }
