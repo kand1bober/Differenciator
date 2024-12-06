@@ -1,4 +1,5 @@
 #include "../Headers/tree_functions.h"
+#include "../../Differenc/Headers/diff_functions.h"
 
 enum TreeErrors TreeDtor( struct Tree* tree )
 {
@@ -434,7 +435,19 @@ void FreeTree( struct Tree* tree, struct Node_t* node )
         DeleteString( tree, node->data.var );
     }
 
+    //----Freeing----
+    // if( node->parent->left == node )
+    // {
+    //     node->parent->left = nullptr;
+    // }
+    // else if( node->parent->right == node )
+    // {
+    //     node->parent->right = nullptr;
+    // }
+
     free( node );
+    //---------------
+
     return;
 }
 
@@ -738,11 +751,10 @@ struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy, struct Nod
 
 
 enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, struct Node_t** src )
-{
-    assert( to_replace );
-    assert( src );
+{   
+    assert( *to_replace );
+    assert( *src );
 
-    //TODO: доделать кагда исправлю CreateNode()
     if( (*to_replace)->parent->left == (*to_replace) )
     {
         (*to_replace)->parent->left = (*src);
@@ -756,36 +768,44 @@ enum TreeErrors ReplaceNode( struct Tree* tree, struct Node_t** to_replace, stru
         printf(RED "unknown problem in %s in %s on line %d " DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__ );
         exit(0);
     }
-    
-    /* РАЮОТА С ДЕТЬМИ, КОТОРЫХ МНЕ НУЖНО ПРОСТО УДАЛИТЬ 
     (*src)->parent = (*to_replace)->parent;
-    (*src)->left = (*to_replace)->left;
-    (*src)->right = (*to_replace)->right;
 
-    if( (*to_replace)->left != nullptr )
+
+    if( (*to_replace)->left == (*src) )
     {
-        (*to_replace)->left->parent = (*src);
-    }
+        (*to_replace)->parent = nullptr;
+ 
+        struct Node_t* tmp_node = nullptr;
+        tmp_node = (*src);
 
-    if( (*to_replace)->right != nullptr )
+        (*to_replace)->left = nullptr;
+        FreeTree( tree, (*to_replace) );
+
+        (*to_replace) = tmp_node;
+    }
+    else if( (*to_replace)->right == (*src) )
     {
-        (*to_replace)->right->parent = (*src);
+        (*to_replace)->parent = nullptr;
+
+        struct Node_t* tmp_node = nullptr;
+        tmp_node = (*src);
+        
+        (*to_replace)->right = nullptr;
+        FreeTree( tree, (*to_replace) );
+
+        (*to_replace) = tmp_node;
     }
-    */
+    else if(  (*to_replace)->left != (*src) && (*to_replace)->right != (*src) )
+    {
+        FreeTree( tree, (*to_replace) );
 
-    // (*src)->left = nullptr;
-    // (*src)->right = nullptr;
-
-    //Deletion of node
-    FreeTree( tree, (*to_replace) );
-
-
-    //---exchange---
-    struct Node_t* ex_node = nullptr;
-    ex_node = (*src);
-    src = to_replace;
-    (*to_replace) = ex_node;
-    //--------------
+        //----exchange-------
+        struct Node_t* ex_node = nullptr;
+        ex_node = (*src);
+        (*src) = (*to_replace);
+        (*to_replace) = ex_node;
+        //-------------------
+    }
 
     return GOOD_INSERT;
 }

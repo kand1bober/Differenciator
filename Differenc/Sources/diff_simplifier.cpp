@@ -1,5 +1,6 @@
 
 #include "../Headers/diff_functions.h"
+#include <cstdio>
 #include "../Headers/diff_simplifier.h"
 
 void TreeSimplifie( struct Tree* tree )
@@ -52,8 +53,6 @@ void NumSimplifie( struct SimpleSrc* src, struct Node_t* node )
 
 void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
 {
-    printf(YELLOW "HUY: %d\n" DELETE_COLOR, node->type );
-
     if( node->left  != nullptr && node->left->left  == nullptr && node->left->right  == nullptr && 
         node->right != nullptr && node->right->left == nullptr && node->right->right == nullptr )
     {
@@ -61,8 +60,6 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
         {
             src->data = {};
             src->type = NUM;
-
-            printf(YELLOW "HUY: %d\n" DELETE_COLOR, node->type );
 
             switch( (int)node->data.op )
             {
@@ -74,7 +71,6 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
                 case kSub:
                 {
                     src->data.num = node->left->data.num - node->right->data.num;
-                    // printf("%p  '%c'  res: %lf\n", node, node->data.op, data.num);
                     break;
                 }
                 case kMul:
@@ -137,6 +133,22 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
 
             NodeSimplifie( src, &node );
         }
+    } 
+    
+    else if( node != nullptr && node->left != nullptr && node->right != nullptr )
+    {   
+        // Left smth mult on right 1
+        if( node->type == OP && ( node->data.op == kMul || node->data.op == kDiv ) && ( node->right->type == NUM && fabs( node->right->data.num - 1) < EPSILON ) )
+        {
+            // printf(YELLOW "Simplifiying mult on right 1\n" DELETE_COLOR);
+            ReplaceNode( src->tree, &node, &(node->left) );
+        } 
+        //Right smth mult on left 1
+        else if( node->type == OP && ( node->data.op == kMul || node->data.op == kDiv ) && ( node->left->type == NUM && fabs( node->left->data.num - 1) < EPSILON ) ) 
+        {
+            // printf(YELLOW "Simplifiying mult on left 1\n" DELETE_COLOR);
+            ReplaceNode( src->tree, &node, &(node->right) );
+        }
     }
 
     if( node->left != nullptr )
@@ -154,17 +166,14 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
 
 void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node )
 {
-    printf(YELLOW "Simplifying\n" DELETE_COLOR );
+    // ON_DEBUG( printf(YELLOW "Simplifying\n" DELETE_COLOR ) );
 
     struct Node_t* tmp_node = nullptr;
-
     tmp_node = CreateNode(src->tree, NULL, NULL, NULL, src->data, src->type);
-
     ReplaceNode( src->tree, node, &tmp_node );
-
-    printf("%p res: %lf\n", node, src->data.num);
-
     src->change_count = CHANGE;
+
+    // ON_DEBUG( printf("%p res: %lf\n", node, src->data.num); );
 
     return;
 }
