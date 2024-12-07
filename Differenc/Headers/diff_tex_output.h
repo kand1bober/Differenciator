@@ -24,6 +24,6 @@ struct FileOutput
 enum TexErrors TexOutput( struct Tree* tree );
 enum TexErrors StertTexOutput( struct FileOutput* src ); 
 enum TexErrors FinishTexOutput( struct FileOutput* src );
-enum TexErrors TexWrite( struct FileOutput* src, struct Tree* tree  );
+enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node );
 
 #endif

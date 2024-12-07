@@ -8,7 +8,7 @@ enum TexErrors TexOutput( struct Tree* tree )
 
     StertTexOutput( &src );
 
-    TexWrite( &src, tree );
+    TexWrite( &src, tree->root );
 
     FinishTexOutput( &src );
 
@@ -27,6 +27,7 @@ enum TexErrors StertTexOutput( struct FileOutput* src )
 
     fprintf( src->stream, 
     "\\documentclass[12pt, letterpaper]{article}\n"
+    "\\usepackage{amsmath}\n"
     "\\title{My first LaTeX document}\n"
     "\\author{Vyacheslav Kurnevich}\n"
     "\\date{November 2024}\n"
@@ -38,11 +39,44 @@ enum TexErrors StertTexOutput( struct FileOutput* src )
     return GOOD;
 }
 
-enum TexErrors TexWrite( struct FileOutput* src, struct Tree* tree )
+enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node )
 {   
+    char statement[50] = "";
 
+    switch( (int)node->type )
+    {
+        case NUM:
+        {
 
-    return GOOD;
+            break;
+        }
+
+        case VAR:
+        {
+
+            break;
+        }
+        
+        case OP:
+        {
+
+            break;
+        }
+    }
+
+    fprintf(src->stream, "%s", "huy\n" );
+
+    if( node->left != nullptr )
+    {
+        TexWrite( src, node->left );
+    }
+
+    if( node->right != nullptr )
+    {
+        TexWrite( src, node->right );
+    }
+
+    return GOOD;    
 }
 
 enum TexErrors FinishTexOutput( struct FileOutput* src )

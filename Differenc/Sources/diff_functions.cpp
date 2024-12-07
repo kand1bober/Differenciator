@@ -26,7 +26,7 @@ enum DiffInfo Run()
     //-----------------PRINTING------------------
     if(my_tree.status == GOOD_TREE)
     {
-        // Output( &my_tree);
+        DotOutput( &my_tree);
         DotOutput( &diff_tree );
         TexOutput( &diff_tree );
     }
@@ -176,34 +176,39 @@ struct Node_t* MakeDifferentiation( struct Tree* diff_tree, struct Node_t* origi
                 }
 
                 case kDeg:
-                {
+                {   
                     data.op = kMul;
                     ready_node = CreateNode( diff_tree, NULL, NULL, NULL, data, OP );
 
-                    //--------------------------LEFT---------------------------
-                    ready_node->left = CopyBranch( diff_tree, origin_node->right, ready_node );
-                    
-                    //-------------------------RIGHT---------------------------
-                    data.op = kMul;
+                    ready_node->left = CopyBranch( diff_tree, origin_node, ready_node );
+
+                    data.op = kAdd;
                     ready_node->right = CreateNode( diff_tree, NULL, NULL, ready_node, data, OP );
-                    // InsertLeave( diff_tree, &ready_node, RIGHT, );
 
-                    tmp_node = MakeDifferentiation( diff_tree, origin_node->left );
-                    InsertLeave( diff_tree, ready_node->right, RIGHT, tmp_node );
-
-                    data.op = kDeg;
+                    data.op = kMul;
                     ready_node->right->left = CreateNode( diff_tree, NULL, NULL, ready_node->right, data, OP );
- 
-                    ready_node->right->left->left = CopyBranch( diff_tree, origin_node->left, ready_node->right->left ); 
 
-                    data.op = kSub;
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->right );
+                    InsertLeave( diff_tree, ready_node->right->left, LEFT, tmp_node );
+
+                    data.op = kLn;
                     ready_node->right->left->right = CreateNode( diff_tree, NULL, NULL, ready_node->right->left, data, OP );
 
-                    ready_node->right->left->right->left = CopyBranch( diff_tree, origin_node->right, ready_node->right->left->right ); 
+                    ready_node->right->left->right->right = CopyBranch( diff_tree, origin_node->left, ready_node->right->left->right );
 
-                    data.num = 1;
-                    ready_node->right->left->right->right = CreateNode( diff_tree, NULL, NULL, ready_node->right->left->right, data, NUM );
-                    
+                    data.op = kMul;
+                    ready_node->right->right = CreateNode( diff_tree, NULL, NULL, ready_node->right, data, OP );
+
+                    data.op = kDiv;
+                    ready_node->right->right->left = CreateNode( diff_tree, NULL, NULL, ready_node->right->right, data, OP );
+
+                    ready_node->right->right->left->left = CopyBranch( diff_tree, origin_node->right, ready_node->right->right->left );
+
+                    ready_node->right->right->left->right = CopyBranch( diff_tree, origin_node->left, ready_node->right->right->left );
+
+                    tmp_node = MakeDifferentiation( diff_tree, origin_node->left );
+                    InsertLeave( diff_tree, ready_node->right->right, RIGHT, tmp_node );
+
                     break;
                 }
 
@@ -368,4 +373,60 @@ struct Node_t* MakeDifferentiation( struct Tree* diff_tree, struct Node_t* origi
     return ready_node;
 }
 
+
+enum Node_types SubtreeType( struct Node_t* node )
+{
+    enum Node_types status = kNoType;
+    status = node->type;
+
+    switch( (int)status )
+    {
+        case VAR:
+        {
+            return VAR;
+        }   
+
+        case NUM:
+        {
+            status = NUM;
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
+    }
+
+    if( node->left != nullptr)
+    {
+        SubtreeType( node->left );
+    }
+
+    switch( (int)status )
+    {
+        case VAR:
+        {
+            return VAR;
+        }   
+
+        case NUM:
+        {
+            status = NUM;
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
+    }
+
+    if( node->right != nullptr )
+    {
+        SubtreeType( node->right );
+    }
+
+    return status;
+}
 
