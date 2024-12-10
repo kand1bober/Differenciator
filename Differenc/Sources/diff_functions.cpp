@@ -26,7 +26,7 @@ enum DiffInfo Run()
     //-----------------PRINTING------------------
     if(my_tree.status == GOOD_TREE)
     {
-        DotOutput( &my_tree);
+        // DotOutput( &my_tree);
         DotOutput( &diff_tree );
         TexOutput( &diff_tree );
     }

@@ -8,31 +8,19 @@ void TreeSimplifie( struct Tree* tree )
     src.tree = tree;
     src.change_count = CHANGE;
 
-    int i = 0;
     while( src.change_count == CHANGE )
     {
         src.change_count = NO_CHANGE;
 
-        // //------------------------------
-        // printf(GREEN "iteration: %d\n" DELETE_COLOR, i );
-        // struct File_text graph_file = {}; 
-        // Output( &graph_file, tree);
-        // getchar();
-        // //------------------------------
-
         OpSimplifie( &src, tree->root );
-
-        // return;
-        i++;
     }
 
     return;
 }
 
+
 void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
 {
-    // printf(SINIY "node: %p\n" DELETE_COLOR, node );
-
     if( node->left  != nullptr && node->left->left  == nullptr && node->left->right  == nullptr && 
         node->right != nullptr && node->right->left == nullptr && node->right->right == nullptr )
     {
@@ -122,7 +110,7 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
         {
             ReplaceNode( &node, &(node->left), src );
         }
-        else if( ( node->type == OP ) && ( node->data.op == kMul || node->data.op == kDiv ) && ( node->left->type == NUM ) && ( fabs( node->left->data.num - 1 ) < EPSILON ) )
+        else if( ( node->type == OP ) && ( node->data.op == kMul ) && ( node->left->type == NUM ) && ( fabs( node->left->data.num - 1 ) < EPSILON ) )
         {
             ReplaceNode( &node, &(node->right), src );
         }
@@ -176,6 +164,7 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
     return;
 }
 
+
 void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node )
 {
     struct Node_t* tmp_node = nullptr;
@@ -188,16 +177,8 @@ void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node )
 
 enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_node, struct SimpleSrc* src )
 {   
-
     assert( *to_replace );
     assert( *new_node );
-
-    // //-----------DEBUG--------------
-    // printf(SINIY "%p %p\n\n" DELETE_COLOR, (*to_replace), (*new_node) );
-    // struct File_text graph_file = {}; 
-    // Output( &graph_file, tree);
-    // getchar();
-    // //------------------------------
 
     const int ROOT = 53;
     const int NOT_ROOT = 52;
@@ -304,7 +285,6 @@ enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_nod
         }
     }
     
-    // printf(RED "    changing    \n" DELETE_COLOR);
     src->change_count = CHANGE;
 
     return GOOD_INSERT;

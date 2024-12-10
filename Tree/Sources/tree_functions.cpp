@@ -436,16 +436,6 @@ void FreeTree( struct Tree* tree, struct Node_t* node )
         DeleteString( tree, node->data.var );
     }
 
-    //----Freeing----
-    // if( node->parent->left == node )
-    // {
-    //     node->parent->left = nullptr;
-    // }
-    // else if( node->parent->right == node )
-    // {
-    //     node->parent->right = nullptr;
-    // }
-
     free( node );
     //---------------
 

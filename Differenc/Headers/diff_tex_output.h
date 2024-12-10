@@ -15,6 +15,20 @@ enum TexErrors
     BAD_OPEN = 76,
 };
 
+enum OpPlace 
+{
+    BEG,
+    MID,
+    END,
+};
+
+enum Arity
+{
+    UNARY = 1,
+    BINARY = 2,
+    TERNARY = 3,
+};
+
 struct FileOutput
 {
     FILE* stream;
@@ -24,6 +38,8 @@ struct FileOutput
 enum TexErrors TexOutput( struct Tree* tree );
 enum TexErrors StertTexOutput( struct FileOutput* src ); 
 enum TexErrors FinishTexOutput( struct FileOutput* src );
-enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node );
+enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* statement );
+
+struct OpNames* FindOperation( enum Operations op );
 
 #endif
