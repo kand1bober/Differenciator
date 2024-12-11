@@ -24,9 +24,16 @@ enum OpPlace
 
 enum Arity
 {
+    NULLNARY = 0,
     UNARY = 1,
     BINARY = 2,
     TERNARY = 3,
+};
+
+enum NeedBrace
+{
+    NEED = 69,
+    NO_NEED = 70,
 };
 
 struct FileOutput
@@ -41,5 +48,9 @@ enum TexErrors FinishTexOutput( struct FileOutput* src );
 enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* statement );
 
 struct OpNames* FindOperation( enum Operations op );
+
+void OpenBrace( char* statement, struct Node_t* node, enum NeedBrace* status );
+void CloseBrace( char* statement, struct Node_t* node, enum NeedBrace* status );
+void DoesNeedBraces( struct Node_t* node, enum NeedBrace* status );
 
 #endif

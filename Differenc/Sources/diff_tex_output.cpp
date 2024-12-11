@@ -10,24 +10,30 @@ struct OpNames
     int arity;
 };
 
+enum BraceAction
+{
+    kOpen = 77,
+    kClose = 78,
+};
+
 const int OP_ARR_SIZE = 13;
 
 //======== Инструкция обхода дерева ========
 static struct OpNames list[OP_ARR_SIZE] = 
 {
-    kNoOp, ".",      MID, 0,
-    kAdd,  "+",      MID, 2,
-    kSub,  "-",      MID, 2,
-    kMul,  "\\cdot", MID, 2,
-    kDiv,  "\\frac", BEG, 2,
-    kDeg,  "^",      MID, 2,
-    kSin,  "\\sin",  BEG, 1,
-    kCos,  "\\cos",  BEG, 1,
-    kTg,   "\\tan",  BEG, 1,
-    kCtg,  "\\cot",  BEG, 1,
-    kLog,  "\\log",  BEG, 2,
-    kLn,   "\\ln",   BEG, 1,
-    kExp,  "\\exp",  BEG, 1,
+    kNoOp, ".",      MID, NULLNARY,
+    kAdd,  "+",      MID, BINARY,
+    kSub,  "-",      MID, BINARY,
+    kMul,  "\\cdot", MID, BINARY,
+    kDiv,  "\\frac", BEG, BINARY,
+    kDeg,  "^",      MID, BINARY,
+    kSin,  "\\sin",  BEG, UNARY,
+    kCos,  "\\cos",  BEG, UNARY,
+    kTg,   "\\tan",  BEG, UNARY,
+    kCtg,  "\\cot",  BEG, UNARY,
+    kLog,  "\\log",  BEG, BINARY,
+    kLn,   "\\ln",   BEG, UNARY,
+    kExp,  "\\exp",  BEG, UNARY,
 };
 
 
@@ -45,6 +51,7 @@ enum TexErrors TexOutput( struct Tree* tree )
 
     return GOOD;
 }
+
 
 enum TexErrors StertTexOutput( struct FileOutput* src )
 {
@@ -70,25 +77,14 @@ enum TexErrors StertTexOutput( struct FileOutput* src )
     return GOOD;
 }
 
+
 enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* statement )
 {   
-    // printf(YELLOW "__%s__\n\n" DELETE_COLOR, statement );
-
     switch( (int)node->type )
     {
         case NUM:
         {
             sprintf( statement + strlen( statement ), "%.2lf", node->data.num );
-
-            if( node->left != nullptr )
-            {
-                TexWrite( src, node->left, statement );
-            }
-
-            if( node->right != nullptr )
-            {
-                TexWrite( src, node->right, statement );
-            }
 
             break;
         }
@@ -96,17 +92,7 @@ enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* stat
         case VAR:
         {
             sprintf( statement + strlen( statement ), "%s", node->data.var );
-
-            if( node->left != nullptr )
-            {
-                TexWrite( src, node->left, statement );
-            }
-
-            if( node->right != nullptr )
-            {
-                TexWrite( src, node->right, statement );
-            }
-
+            
             break;
         }
         
@@ -120,8 +106,7 @@ enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* stat
                 {
                     case BEG:
                     {
-                        sprintf( statement  + strlen( statement ), "%s"
-                                            "{(", op->name );
+                        sprintf( statement  + strlen( statement ), "%s", op->name );
 
                         switch( op->arity )
                         {
@@ -129,10 +114,11 @@ enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* stat
                             {
                                 if( node->right != nullptr )
                                 {
+                                    enum NeedBrace brace_status = NO_NEED;
+                                    OpenBrace( statement, node->right, &brace_status );
                                     TexWrite( src, node->right, statement );
+                                    CloseBrace( statement, node, &brace_status );
                                 }
-
-                                sprintf( statement + strlen( statement ), ")}" );
 
                                 break;
                             }
@@ -140,18 +126,19 @@ enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* stat
                             {
                                 if( node->left != nullptr )
                                 {
+                                    enum NeedBrace brace_status = NO_NEED;
+                                    OpenBrace( statement, node->left, &brace_status );
                                     TexWrite( src, node->left, statement );
-                                }
-
-                                sprintf( statement + strlen( statement ), ")}" );
-                                sprintf( statement + strlen( statement ), "{(" );
+                                    CloseBrace( statement, node, &brace_status );
+                                }                        
 
                                 if( node->right != nullptr )
                                 {
+                                    enum NeedBrace brace_status = NO_NEED;
+                                    OpenBrace( statement, node->right, &brace_status );
                                     TexWrite( src, node->right, statement );
+                                    CloseBrace( statement, node, &brace_status );
                                 }
-
-                                sprintf( statement + strlen( statement ), ")}" );
 
                                 break;
                             }
@@ -166,26 +153,26 @@ enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* stat
                         break;
                     }   
 
+                    //already binary
                     case MID:
                     {
-                        sprintf( statement + strlen( statement ), "{(" );
-
                         if( node->left != nullptr )
                         {
+                            enum NeedBrace brace_status = NO_NEED;
+                            OpenBrace( statement, node->left, &brace_status );
                             TexWrite( src, node->left, statement );
+                            CloseBrace( statement, node, &brace_status );
                         }
 
-                        sprintf( statement + strlen( statement ), ")}" );
-
-                        sprintf( statement + strlen( statement ), "%s"
-                                            "{(", op->name );
+                        sprintf( statement + strlen( statement ), "%s", op->name );
 
                         if( node->right != nullptr )
                         {
+                            enum NeedBrace brace_status = NO_NEED;
+                            OpenBrace( statement, node->right, &brace_status );
                             TexWrite( src, node->right, statement );
+                            CloseBrace( statement, node, &brace_status );
                         }
-
-                        sprintf( statement + strlen( statement ), ")}" );
 
                         break;
                     }
@@ -199,7 +186,7 @@ enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* stat
             }
             else 
             {
-                printf( RED "No such operation\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__  );
+                printf(RED "No such operation\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__  );
                 exit(0);
             }
 
@@ -236,4 +223,55 @@ struct OpNames* FindOperation( enum Operations op )
     }
     
     return nullptr;
+}
+
+void OpenBrace( char* statement, struct Node_t* node, enum NeedBrace* status )
+{
+    sprintf( statement + strlen( statement ), "{" );
+
+    DoesNeedBraces( node, status );
+
+    if( *status == NEED ) 
+    {
+        sprintf( statement + strlen( statement ), "(" );
+    }
+}
+
+void CloseBrace( char* statement, struct Node_t* node, enum NeedBrace* status )
+{
+    if( *status == NEED ) 
+    {
+        sprintf( statement + strlen( statement ), ")" );
+    }
+
+    sprintf( statement + strlen( statement ), "}" );
+}
+
+void DoesNeedBraces( struct Node_t* node, enum NeedBrace* status )  //Анализ ветки
+{
+    switch( (int)node->type )
+    {
+        case NUM:
+        {
+            return;
+        }   
+
+        case VAR:
+        {
+            break;
+        }
+        case OP:
+        {
+            *status = NEED;
+            return;
+        }
+
+        default:
+        {
+            printf(RED "Smth strange in\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__  );
+            break;
+        }
+    }
+
+    return;
 }
