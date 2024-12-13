@@ -13,11 +13,11 @@ enum TreeErrors TreeDtor( struct Tree* tree )
 
 
 //=========================== CREATE NODE =====================================
-struct Node_t* CreateNode( struct Tree* tree, struct Node_t* left, struct Node_t* right, struct Node_t* parent, Data_t data, enum Node_types type )
+Node_t* CreateNode( struct Tree* tree, Node_t* left, Node_t* right, Node_t* parent, Data_t data, enum Node_types type )
 {
     assert( tree );
 
-    struct Node_t* new_node = nullptr;
+    Node_t* new_node = nullptr;
 
     switch( (int)type )
     {
@@ -47,11 +47,68 @@ struct Node_t* CreateNode( struct Tree* tree, struct Node_t* left, struct Node_t
     new_node->right = right;
     new_node->parent = parent;
 
+    if( left != nullptr )
+    {
+        left->parent = new_node;
+    }
+
+    if( right != nullptr )
+    {
+        right->parent = new_node;
+    }
+
     return new_node;
 }   
 
 
-enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t** new_node )
+Node_t* CreateNodeDSL( struct Tree* tree, Node_t* left, Node_t* right, Data_t data, enum Node_types type )
+{
+    assert( tree );
+
+    Node_t* new_node = nullptr;
+
+    switch( (int)type )
+    {
+        case NUM:
+        {
+            CreateNumNode( tree, data.num, &new_node );
+            break;
+        }
+        case VAR:
+        {
+            CreateVarNode( tree, data.var, &new_node );
+            break;  
+        }
+        case OP:
+        {
+            CreateOpNode( tree, data.op, &new_node );
+            break;
+        }
+        default:
+        {
+            printf(RED "Error in node type\n" DELETE_COLOR);
+            break;
+        }
+    }
+
+    new_node->left = left;
+    new_node->right = right;
+
+    if( left != nullptr )
+    {
+        left->parent = new_node;
+    }
+
+    if( right != nullptr )
+    {
+        right->parent = new_node;
+    }
+
+    return new_node;
+}   
+
+
+enum TreeErrors CreateNumNode( struct Tree* tree, double number, Node_t** new_node )
 {
     (*new_node) = (Node_t*)calloc( 1, sizeof( Node_t ) );
     (*new_node)->data.num = number;
@@ -76,7 +133,7 @@ enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t**
 }   
 
 
-enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, struct Node_t** new_node )
+enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, Node_t** new_node )
 {
     (*new_node) = (Node_t*)calloc( 1, sizeof( Node_t ) );
     (*new_node)->data.op = operation;
@@ -101,7 +158,7 @@ enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, stru
 }
 
 
-enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t** new_node )
+enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, Node_t** new_node )
 {
     enum TreeErrors find_status = SAME_STRING_EXISTS; // just initialization
     int string_position = 0;
@@ -268,7 +325,7 @@ void StringDump( struct Tree* tree )
 }
 //-----------------------------------------------------------------------------
 
-enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect )
+enum TreeErrors InsertLeave( struct Tree* tree, Node_t* parent, enum Direction branch, Node_t* to_connect )
 {   
     assert( to_connect );
 
@@ -328,7 +385,7 @@ enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Dire
 }
 
 //insert already existing node
-enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node )
+enum TreeErrors InsertNode( Node_t* left, Node_t* right, Node_t* node )
 {
     if( (left != nullptr) && (right != nullptr) )
     {
@@ -413,13 +470,13 @@ enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct No
 }
 
 
-void FreeTree( struct Tree* tree, struct Node_t* node )
+void FreeTree( struct Tree* tree, Node_t* node )
 {   
     assert(tree);
     assert(node);
     
-    struct Node_t* left = node->left;
-    struct Node_t* right = node->right;
+    Node_t* left = node->left;
+    Node_t* right = node->right;
 
     if( left != nullptr)
     {
@@ -443,7 +500,7 @@ void FreeTree( struct Tree* tree, struct Node_t* node )
 }
 
 
-enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type ) 
+enum TreeErrors BranchDelete( struct Tree* tree, Node_t* node, enum Node_types node_type ) 
 {
     if( node )
     {
@@ -451,7 +508,7 @@ enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_
         {
             ON_DEBUG( printf(SINIY "deleting \"leave\" node\n" DELETE_COLOR); )
 
-            struct Node_t* tmp_parent = node->parent;
+            Node_t* tmp_parent = node->parent;
 
             if( tmp_parent->left == node )
             {
@@ -476,7 +533,7 @@ enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_
         {
             ON_DEBUG( printf(SINIY "deleting node with both branches\n( causes deletion of all nodes under )\n" DELETE_COLOR); )
  
-            struct Node_t* tmp_parent = node->parent;
+            Node_t* tmp_parent = node->parent;
 
             if( tmp_parent->left == node )
             {
@@ -554,7 +611,7 @@ enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_
 }
 
 
-enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type )
+enum TreeErrors Find( struct Tree* tree, Data_t to_find, Node_t** answer, enum Node_types node_type )
 {
     ON_DEBUG( printf("need to find: %s\n", to_find); )
 
@@ -586,10 +643,10 @@ enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** a
 }
 
 
-enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct Node_t** answer )
+enum TreeErrors FindNumNode( Node_t* node_search, double to_find, Node_t** answer )
 {
-    struct Node_t* left_search = node_search->left;
-    struct Node_t* right_search = node_search->right;
+    Node_t* left_search = node_search->left;
+    Node_t* right_search = node_search->right;
 
     if( fabs( node_search->data.num - to_find ) > EPSILON )
     {
@@ -615,10 +672,10 @@ enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct 
 }
 
 
-enum TreeErrors FindOpNode( struct Node_t* node_search, enum Operations to_find, struct Node_t** answer )
+enum TreeErrors FindOpNode( Node_t* node_search, enum Operations to_find, Node_t** answer )
 {
-    struct Node_t* left_search = node_search->left;
-    struct Node_t* right_search = node_search->right;
+    Node_t* left_search = node_search->left;
+    Node_t* right_search = node_search->right;
 
 
     if( (int)node_search->data.op != (int)to_find )
@@ -646,17 +703,17 @@ enum TreeErrors FindOpNode( struct Node_t* node_search, enum Operations to_find,
 }
 
 
-enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct Node_t** answer )
+enum TreeErrors FindVarNode( Node_t* node_search, char* to_find, Node_t** answer )
 {
     assert( node_search );
     assert( to_find );
     assert( answer );
     
         ON_DEBUG( printf(YELLOW "====== Start of FindNode ======\n" DELETE_COLOR); )
-    struct Node_t* left_search = node_search->left;
+    Node_t* left_search = node_search->left;
         ON_DEBUG( printf(PURPLE "    left: %p\n" DELETE_COLOR, node_search->left); )
         ON_DEBUG( printf(PURPLE "    right: %p\n" DELETE_COLOR, node_search->right); )
-    struct Node_t* right_search = node_search->right;
+    Node_t* right_search = node_search->right;
 
     if( strcmp( node_search->data.var, to_find ) != 0 )
     {
@@ -686,14 +743,14 @@ enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct N
 }
 
 //---------- Tree* tree --- is where to add copied node ------------
-struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy )
+Node_t* CopyNode( struct Tree* tree, Node_t* node_to_copy )
 {
     assert( tree );
     assert( node_to_copy );
 
-    struct Node_t* answer = nullptr;
+    Node_t* answer = nullptr;
 
-    union Data_t data = {};
+    Data_t data = {};
     switch( (int)node_to_copy->type )
     {
         case NUM:
@@ -720,12 +777,31 @@ struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy )
 }
 
 
-struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy, struct Node_t* parent )
+Node_t* CopyBranch( struct Tree* tree, Node_t* to_copy, Node_t* parent )
 {
-    struct Node_t* tmp_node = nullptr;
+    Node_t* tmp_node = nullptr;
 
     tmp_node = CopyNode( tree, to_copy );
     tmp_node->parent = parent;
+
+    if( to_copy->left != nullptr )
+    {
+        tmp_node->left = CopyBranch( tree, to_copy->left, tmp_node );
+    }
+
+    if( to_copy->right != nullptr )
+    {
+        tmp_node->right = CopyBranch( tree, to_copy->right, tmp_node );
+    }
+
+    return tmp_node;
+}
+
+Node_t* CopyBranchDSL( struct Tree* tree, Node_t* to_copy )
+{
+    Node_t* tmp_node = nullptr;
+
+    tmp_node = CopyNode( tree, to_copy );
 
     if( to_copy->left != nullptr )
     {

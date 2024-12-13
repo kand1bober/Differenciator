@@ -14,15 +14,15 @@ struct SimpleSrc
 
     struct Tree* tree;
     enum Node_types type;
-    union Data_t data;
+    Data_t data;
 };
 
 void TreeSimplifie( struct Tree* tree );
-void VarSimplifie( struct SimpleSrc* src, struct Node_t* node );
-void NumSimplifie( struct SimpleSrc* src, struct Node_t* node );
-void OpSimplifie( struct SimpleSrc* src, struct Node_t* node );
-void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node );
+void VarSimplifie( struct SimpleSrc* src, Node_t* node );
+void NumSimplifie( struct SimpleSrc* src, Node_t* node );
+void OpSimplifie( struct SimpleSrc* src, Node_t* node );
+void NodeSimplifie( struct SimpleSrc* src, Node_t** node );
 
-enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_node, struct SimpleSrc* src );
+enum TreeErrors ReplaceNode( Node_t** to_replace, Node_t** new_node, struct SimpleSrc* src );
 
 #endif

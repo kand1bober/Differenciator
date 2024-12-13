@@ -15,7 +15,7 @@ struct ParserSrc
 };
 
 enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, struct Tree* tree );
-void NodeFromData( struct File_text* dump, struct Tree* tree, struct Node_t* node, struct Parser* utility );
+void NodeFromData( struct File_text* dump, struct Tree* tree, Node_t* node, struct Parser* utility );
 void InputFileNameChange( void );
 
 //-------------PARSER BY DED----------------

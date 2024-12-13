@@ -19,7 +19,7 @@ void TreeSimplifie( struct Tree* tree )
 }
 
 
-void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
+void OpSimplifie( struct SimpleSrc* src, Node_t* node )
 {
     if( node->left  != nullptr && node->left->left  == nullptr && node->left->right  == nullptr && 
         node->right != nullptr && node->right->left == nullptr && node->right->right == nullptr )
@@ -165,9 +165,9 @@ void OpSimplifie( struct SimpleSrc* src, struct Node_t* node )
 }
 
 
-void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node )
+void NodeSimplifie( struct SimpleSrc* src, Node_t** node )
 {
-    struct Node_t* tmp_node = nullptr;
+    Node_t* tmp_node = nullptr;
     tmp_node = CreateNode(src->tree, NULL, NULL, NULL, src->data, src->type);
     ReplaceNode( node, &tmp_node, src );
 
@@ -175,7 +175,7 @@ void NodeSimplifie( struct SimpleSrc* src, struct Node_t** node )
 }
 
 
-enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_node, struct SimpleSrc* src )
+enum TreeErrors ReplaceNode( Node_t** to_replace, Node_t** new_node, struct SimpleSrc* src )
 {   
     assert( *to_replace );
     assert( *new_node );
@@ -215,7 +215,7 @@ enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_nod
         {
             (*to_replace)->parent = nullptr;
     
-            struct Node_t* tmp_node = nullptr;
+            Node_t* tmp_node = nullptr;
             tmp_node = (*new_node);
 
             (*to_replace)->left = nullptr;
@@ -229,7 +229,7 @@ enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_nod
         {
             (*to_replace)->parent = nullptr;
     
-            struct Node_t* tmp_node = nullptr;
+            Node_t* tmp_node = nullptr;
             tmp_node = (*new_node);
 
             (*to_replace)->left = nullptr;
@@ -242,7 +242,7 @@ enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_nod
     {
         if( type_status == ROOT )
         {
-            struct Node_t* tmp_node = nullptr;
+            Node_t* tmp_node = nullptr;
             tmp_node = (*new_node);
             
             (*to_replace)->right = nullptr;
@@ -256,7 +256,7 @@ enum TreeErrors ReplaceNode( struct Node_t** to_replace, struct Node_t** new_nod
         {
             (*to_replace)->parent = nullptr;
 
-            struct Node_t* tmp_node = nullptr;
+            Node_t* tmp_node = nullptr;
             tmp_node = (*new_node);
             
             (*to_replace)->right = nullptr;

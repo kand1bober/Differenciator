@@ -31,7 +31,7 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, st
             src.tree = tree;
             //--------------
 
-        struct Node_t* answer = nullptr;
+        Node_t* answer = nullptr;
         GetG( &src );
         //----------------------------
 
@@ -65,18 +65,18 @@ void GetG( struct ParserSrc* src )
 
 Node_t* GetE( struct ParserSrc* src )
 {
-    struct Node_t* val = GetT( src );
+    Node_t* val = GetT( src );
  
     while( (src->s[src->p] == '+') || (src->s[src->p] == '-') )
     {
         int op = src->p;
 
         src->p++;
-        struct Node_t* val2 = GetT( src );
+        Node_t* val2 = GetT( src );
         if( src->s[op] == '+' )
         {
-            struct Node_t* tmp_node = nullptr;
-            union Data_t value = {};
+            Node_t* tmp_node = nullptr;
+            Data_t value = {};
             value.op = kAdd;
             tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
 
@@ -84,15 +84,15 @@ Node_t* GetE( struct ParserSrc* src )
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
 
             //----exchange----
-            struct Node_t* new_tmp = tmp_node;
+            Node_t* new_tmp = tmp_node;
             tmp_node = val;
             val = new_tmp;
             //----------------
         }
         else
         {
-            struct Node_t* tmp_node = nullptr;
-            union Data_t value = {};
+            Node_t* tmp_node = nullptr;
+            Data_t value = {};
             value.op = kSub;
             tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
 
@@ -100,7 +100,7 @@ Node_t* GetE( struct ParserSrc* src )
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
 
             //----exchange----
-            struct Node_t* new_tmp = tmp_node;
+            Node_t* new_tmp = tmp_node;
             tmp_node = val;
             val = new_tmp;
             //----------------
@@ -112,17 +112,17 @@ Node_t* GetE( struct ParserSrc* src )
 
 Node_t* GetT( struct ParserSrc* src )
 {
-    struct Node_t* val = GetD( src );
+    Node_t* val = GetD( src );
 
     while( src->s[src->p] == '*' || src->s[src->p] == '/' )
     {
         int op = src->p;
         src->p++;
-        struct Node_t* val2 = GetD( src );
+        Node_t* val2 = GetD( src );
         if( src->s[op] == '*' )
         {
-            struct Node_t* tmp_node = nullptr;
-            union Data_t value = {};
+            Node_t* tmp_node = nullptr;
+            Data_t value = {};
             value.op = kMul;
             tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
             // val *= val2;
@@ -130,15 +130,15 @@ Node_t* GetT( struct ParserSrc* src )
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
 
             //----exchange----
-            struct Node_t* new_tmp = tmp_node;
+            Node_t* new_tmp = tmp_node;
             tmp_node = val;
             val = new_tmp;
             //----------------
         }
         else if( src->s[op] == '/' )
         {
-            struct Node_t* tmp_node = nullptr;
-            union Data_t value = {};
+            Node_t* tmp_node = nullptr;
+            Data_t value = {};
             value.op = kDiv;
             tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
             // val *= val2;
@@ -146,7 +146,7 @@ Node_t* GetT( struct ParserSrc* src )
             InsertLeave( src->tree, tmp_node, RIGHT, val2 );
 
             //----exchange----
-            struct Node_t* new_tmp = tmp_node;
+            Node_t* new_tmp = tmp_node;
             tmp_node = val;
             val = new_tmp;
             //----------------
@@ -162,16 +162,16 @@ Node_t* GetT( struct ParserSrc* src )
 
 Node_t* GetD( struct ParserSrc* src )
 {
-    struct Node_t* val = GetSL( src ); 
+    Node_t* val = GetSL( src ); 
 
     while( src->s[src->p] == '^' )
     {
         int op = src->p;
         src->p++;
-        struct Node_t* val2 = GetSL( src ); 
+        Node_t* val2 = GetSL( src ); 
 
-        struct Node_t* tmp_node = nullptr;
-        union Data_t value = {};
+        Node_t* tmp_node = nullptr;
+        Data_t value = {};
         value.op = kDeg;
         tmp_node = CreateNode( src->tree, NULL, NULL, NULL, value, OP );
 
@@ -179,7 +179,7 @@ Node_t* GetD( struct ParserSrc* src )
         InsertLeave( src->tree, tmp_node, RIGHT, val2 );
 
         //----exchange----
-        struct Node_t* new_tmp = tmp_node;
+        Node_t* new_tmp = tmp_node;
         tmp_node = val;
         val = new_tmp;
         //----------------
@@ -190,10 +190,10 @@ Node_t* GetD( struct ParserSrc* src )
 
 Node_t* GetSL( struct ParserSrc* src )
 {
-    union Data_t value = {};
-    struct Node_t* val1 = nullptr;
-    struct Node_t* val2 = nullptr;
-    struct Node_t* val = nullptr;
+    Data_t value = {};
+    Node_t* val1 = nullptr;
+    Node_t* val2 = nullptr;
+    Node_t* val = nullptr;
 
     switch( src->s[src->p] )
     {   
@@ -453,7 +453,7 @@ Node_t* GetP( struct ParserSrc* src )
     if( src->s[src->p] == '(' )
     {
         src->p++;
-        struct Node_t* val = GetE( src );
+        Node_t* val = GetE( src );
         if( src->s[src->p] != ')' )
         {
             printf(RED "Syntax error in GetP\n" DELETE_COLOR);
@@ -490,8 +490,8 @@ Node_t* GetN( struct ParserSrc* src )
     }
     assert( src->old_p != src->p );
 
-    struct Node_t* new_node = nullptr;
-    union Data_t value = {};
+    Node_t* new_node = nullptr;
+    Data_t value = {};
     value.num = (double)val;
     new_node = CreateNode( src->tree, NULL, NULL, NULL, value, NUM );
     return new_node;
@@ -507,8 +507,8 @@ Node_t* GetV( struct ParserSrc* src )
 
     assert( src->old_p != src->p );
 
-    struct Node_t* new_node = nullptr;
-    union Data_t value = {};
+    Node_t* new_node = nullptr;
+    Data_t value = {};
     value.var = val;
     new_node = CreateNode( src->tree, NULL, NULL, NULL, value, VAR );
     return new_node;

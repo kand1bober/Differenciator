@@ -43,7 +43,7 @@ enum TexErrors TexOutput( struct Tree* tree )
 
     StertTexOutput( &src );
 
-    char statement[200] = "";
+    char statement[500] = "";
     TexWrite( &src, tree->root, statement );
     fprintf( src.stream, "%s", statement );
 
@@ -78,7 +78,7 @@ enum TexErrors StertTexOutput( struct FileOutput* src )
 }
 
 
-enum TexErrors TexWrite( struct FileOutput* src, struct Node_t* node, char* statement )
+enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
 {   
     switch( (int)node->type )
     {
@@ -225,7 +225,7 @@ struct OpNames* FindOperation( enum Operations op )
     return nullptr;
 }
 
-void OpenBrace( char* statement, struct Node_t* node, enum NeedBrace* status )
+void OpenBrace( char* statement, Node_t* node, enum NeedBrace* status )
 {
     sprintf( statement + strlen( statement ), "{" );
 
@@ -237,7 +237,7 @@ void OpenBrace( char* statement, struct Node_t* node, enum NeedBrace* status )
     }
 }
 
-void CloseBrace( char* statement, struct Node_t* node, enum NeedBrace* status )
+void CloseBrace( char* statement, Node_t* node, enum NeedBrace* status )
 {
     if( *status == NEED ) 
     {
@@ -247,7 +247,7 @@ void CloseBrace( char* statement, struct Node_t* node, enum NeedBrace* status )
     sprintf( statement + strlen( statement ), "}" );
 }
 
-void DoesNeedBraces( struct Node_t* node, enum NeedBrace* status )  //Анализ ветки
+void DoesNeedBraces( Node_t* node, enum NeedBrace* status )  //Анализ ветки
 {
     switch( (int)node->type )
     {

@@ -51,27 +51,27 @@ struct SmartString
     int links_amount;
 };
 
-union Data_t
+typedef union data_t
 {
     double num;
     char* var; //только указатель на нужную строку
     Operations op;
-};  
+} Data_t;
 
 // struct Lexer {
 //     Node_types kind_of_data;
 //     Data_t* array;
 // };
 
-struct Node_t
+typedef struct node_t 
 {   
-    union Data_t data;
+    Data_t data;
     enum Node_types type; 
 
-    Node_t* left;
-    Node_t* right;
-    Node_t* parent;
-};
+    node_t* left;
+    node_t* right;
+    node_t* parent;
+} Node_t;
 //--------------------
 
 //--------TREE-----------
@@ -136,7 +136,7 @@ enum Direction
 
 struct Tree 
 {
-    union Data_t data;
+    Data_t data;
     enum Node_types type;
 
     Node_t* root;
@@ -149,26 +149,27 @@ struct Tree
 //-------------------------------OPERATIONS WITH TREE------------------------------------
 enum TreeErrors TreeCtor( struct Tree* tree );
 enum TreeErrors TreeDtor( struct Tree* tree );
-void FreeTree( struct Tree* tree, struct Node_t* node ); //-------- recursive
+void FreeTree( struct Tree* tree, Node_t* node ); //-------- recursive
 
 //--------------------------------OPERATIONS WITH NODES----------------------------------
-struct Node_t* CreateNode( struct Tree* tree, struct Node_t* left, struct Node_t* right, struct Node_t* parent, Data_t data, enum Node_types type );
-enum TreeErrors CreateNumNode( struct Tree* tree, double number, struct Node_t** new_node );
-enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, struct Node_t** new_node );
-enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, struct Node_t** new_node );
+Node_t* CreateNode( struct Tree* tree, Node_t* left, Node_t* right, Node_t* parent, Data_t data, enum Node_types type );
+enum TreeErrors CreateNumNode( struct Tree* tree, double number, Node_t** new_node );
+enum TreeErrors CreateOpNode( struct Tree* tree, enum Operations operation, Node_t** new_node );
+enum TreeErrors CreateVarNode( struct Tree* tree, char* variable, Node_t** new_node );
 
-struct Node_t* CopyNode( struct Tree* tree, struct Node_t* node_to_copy );
 
-enum TreeErrors BranchDelete( struct Tree* tree, struct Node_t* node, enum Node_types node_type );
-enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
-enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
-struct Node_t* CopyBranch( struct Tree* tree, struct Node_t* to_copy, struct Node_t* parent );
+Node_t* CopyNode( struct Tree* tree, Node_t* node_to_copy );
+
+enum TreeErrors BranchDelete( struct Tree* tree, Node_t* node, enum Node_types node_type );
+enum TreeErrors InsertNode( Node_t* left, Node_t* right, Node_t* node );
+enum TreeErrors InsertLeave( struct Tree* tree, Node_t* parent, enum Direction branch, Node_t* to_connect );
+Node_t* CopyBranch( struct Tree* tree, Node_t* to_copy, Node_t* parent );
 
 //----------------------------FIND FUNCTIONS----------------------------------------
-enum TreeErrors Find( struct Tree* tree, union Data_t to_find, struct Node_t** answer, enum Node_types node_type );
-enum TreeErrors FindNumNode( struct Node_t* node_search, double to_find, struct Node_t** answer );
-enum TreeErrors FindOpNode( struct Node_t* node_search, enum Operations to_find, struct Node_t** answer );
-enum TreeErrors FindVarNode( struct Node_t* node_search, char* to_find, struct Node_t** answer );
+enum TreeErrors Find( struct Tree* tree, Data_t to_find, Node_t** answer, enum Node_types node_type );
+enum TreeErrors FindNumNode( Node_t* node_search, double to_find, Node_t** answer );
+enum TreeErrors FindOpNode( Node_t* node_search, enum Operations to_find, Node_t** answer );
+enum TreeErrors FindVarNode( Node_t* node_search, char* to_find, Node_t** answer );
 
 //---------------------------- STRING FUCTIONS ------------------------------------------
 enum TreeErrors FindString( struct Tree* tree, char* to_find, int* string_position );
@@ -177,4 +178,10 @@ enum TreeErrors FindEmptyString( struct Tree* tree, int* string_position );
 enum TreeErrors DeleteString( struct Tree* tree, char* string );
 void StringDump( struct Tree* tree );
 
+//==================== DSL ================
+Node_t* CreateNodeDSL( struct Tree* tree, Node_t* left, Node_t* right, Data_t data, enum Node_types type );
+Node_t* CopyBranchDSL( struct Tree* tree, Node_t* to_copy );
+
 #endif
+
+
