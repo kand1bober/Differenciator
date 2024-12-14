@@ -42,7 +42,7 @@ struct FileOutput
     char filepath[200];
 };
 
-enum TexErrors TexOutput( struct Tree* tree );
+enum TexErrors TexOutput( struct Tree* origin_tree, struct Tree* diff_tree );
 enum TexErrors StertTexOutput( struct FileOutput* src ); 
 enum TexErrors FinishTexOutput( struct FileOutput* src );
 enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement );

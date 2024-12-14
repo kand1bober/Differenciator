@@ -28,7 +28,7 @@ enum DiffInfo Run()
     {
         // DotOutput( &my_tree);
         DotOutput( &diff_tree );
-        TexOutput( &diff_tree );
+        TexOutput( &my_tree, &diff_tree );
     }
     else 
     {
@@ -57,7 +57,6 @@ Node_t* MakeDifferentiation( struct Tree* diff_tree, Node_t* origin_node )
 {
     #define DIFF_DSL
     #include "../Headers/diff_dsl.h"
-    // #undef DIFF_DSL
     Node_t* ready_node = nullptr; //создаётся на каждой стадии рекурсии и возвращается в конце
     Data_t data = {};
 

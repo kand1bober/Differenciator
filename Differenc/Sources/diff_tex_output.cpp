@@ -37,14 +37,31 @@ static struct OpNames list[OP_ARR_SIZE] =
 };
 
 
-enum TexErrors TexOutput( struct Tree* tree )
+enum TexErrors TexOutput( struct Tree* origin_tree, struct Tree* diff_tree )
 {
     struct FileOutput src = {};
 
     StertTexOutput( &src );
 
-    char statement[500] = "";
-    TexWrite( &src, tree->root, statement );
+    char statement[1000] = "";
+
+    sprintf( statement + strlen( statement ), "\\section{Входные данные:}\n"
+                                              "\\begin{center}\n"
+                                              "Функция:\n$$\n");
+    TexWrite( &src, origin_tree->root, statement );
+    sprintf( statement + strlen( statement ), "$$\n"
+                                              "\\end{center}\n" );
+
+    sprintf( statement + strlen( statement ), "\\section{Ответ:}\n"
+                                              "\\begin{center}\n"
+                                              "Производная:\n$$\n");                           
+    TexWrite( &src, diff_tree->root, statement );
+    sprintf( statement + strlen( statement ), "$$\n"
+                                              "\\end{center}\n");
+
+    sprintf( statement + strlen( statement ), "\\section{Вывод:}\n"
+                                              "Лень думать, я пошёл спать\n");
+
     fprintf( src.stream, "%s", statement );
 
     FinishTexOutput( &src );
@@ -66,12 +83,12 @@ enum TexErrors StertTexOutput( struct FileOutput* src )
     fprintf( src->stream, 
     "\\documentclass[12pt, a4paper]{article}\n"
     "\\usepackage{amsmath}\n"
-    "\\title{Laboratory work on the topic of\ntaking a derivative}\n"
-    "\\author{Vyacheslav Kurnevich}\n"
-    "\\date{November 2024}\n"
+    "\\usepackage[russian]{babel}\n"
+    "\\title{Лабораторная работа на тему\nвзятия приозводной}\n"
+    "\\author{Вячеслав Курневич}\n"
+    "\\date{Декабрь 2024}\n"
     "\\begin{document}\n"
     "\\maketitle\n"
-    "\\["
     );
 
     return GOOD;
@@ -199,8 +216,7 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
 
 enum TexErrors FinishTexOutput( struct FileOutput* src )
 {   
-    fprintf( src->stream, "\\]\n"
-                          "\\end{document}\n");
+    fprintf( src->stream, "\\end{document}\n");
 
     fclose( src->stream );
 
