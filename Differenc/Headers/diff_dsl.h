@@ -1,9 +1,13 @@
-#define DIFF_DSL
+#include "diff_functions.h"
+
+#ifndef DIFF_DSL_HEADER
+#define DIFF_DSL_HEADER
+
+
+// #define DIFF_DSL
 
 #ifdef DIFF_DSL
-#define DIFF_DSL
+    #include "diff_dsl_commands.h"
+#endif
 
-    #define CreateNode( TREE_TYPE, NODE_NAME, NODE_TYPE ) CreateNode( type##_tree, data, &#NODE_NAME##_node, NODE_TYPE )
-            // CreateNode( diff, ready, tmp, OP );
-    
 #endif
