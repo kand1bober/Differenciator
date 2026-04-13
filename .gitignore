@@ -14,6 +14,8 @@ Example_how_to_startt
 Tree
 Differenciator
 
-diff_Latex_src
+Differenc/diff_Latex_src/*aux
+Differenc/diff_Latex_src/*log
+Differenc/diff_Latex_src/*tex
 
 .vscode
