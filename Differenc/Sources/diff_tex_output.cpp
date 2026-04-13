@@ -60,7 +60,7 @@ enum TexErrors TexOutput( struct Tree* origin_tree, struct Tree* diff_tree )
                                               "\\end{center}\n");
 
     sprintf( statement + strlen( statement ), "\\section{Вывод:}\n"
-                                              "Лень думать, я пошёл спать\n");
+                                              "Думайте.\n");
 
     fprintf( src.stream, "%s", statement );
 
