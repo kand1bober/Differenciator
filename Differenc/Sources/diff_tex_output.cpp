@@ -60,7 +60,7 @@ enum TexErrors TexOutput( struct Tree* origin_tree, struct Tree* diff_tree )
                                               "\\end{center}\n");
 
     sprintf( statement + strlen( statement ), "\\section{Вывод:}\n"
-                                              "Думайте.\n");
+                                              "Лень думать, я пошёл спать\n");
 
     fprintf( src.stream, "%s", statement );
 
@@ -102,14 +102,12 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
         case NUM:
         {
             sprintf( statement + strlen( statement ), "%.2lf", node->data.num );
-
             break;
         }
 
         case VAR:
         {
             sprintf( statement + strlen( statement ), "%s", node->data.var );
-            
             break;
         }
         
@@ -123,6 +121,28 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
                 {
                     case BEG:
                     {
+                        // --- Специальный случай для дроби ---
+                        if( node->data.op == kDiv )
+                        {
+                            sprintf( statement + strlen( statement ), "%s", op->name ); // \frac
+
+                            if( node->left != nullptr )
+                            {
+                                sprintf( statement + strlen( statement ), "{" );
+                                TexWrite( src, node->left, statement );
+                                sprintf( statement + strlen( statement ), "}" );
+                            }
+
+                            if( node->right != nullptr )
+                            {
+                                sprintf( statement + strlen( statement ), "{" );
+                                TexWrite( src, node->right, statement );
+                                sprintf( statement + strlen( statement ), "}" );
+                            }
+
+                            break;
+                        }
+
                         sprintf( statement  + strlen( statement ), "%s", op->name );
 
                         switch( op->arity )
@@ -131,37 +151,38 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
                             {
                                 if( node->right != nullptr )
                                 {
-                                    enum NeedBrace brace_status = NO_NEED;
-                                    OpenBrace( statement, node->right, &brace_status );
+                                    sprintf( statement + strlen( statement ), "(" );
                                     TexWrite( src, node->right, statement );
-                                    CloseBrace( statement, node, &brace_status );
+                                    sprintf( statement + strlen( statement ), ")" );
                                 }
 
                                 break;
                             }
+
                             case BINARY:
                             {
+                                // например log(a,b)
                                 if( node->left != nullptr )
                                 {
-                                    enum NeedBrace brace_status = NO_NEED;
-                                    OpenBrace( statement, node->left, &brace_status );
+                                    sprintf( statement + strlen( statement ), "{" );
                                     TexWrite( src, node->left, statement );
-                                    CloseBrace( statement, node, &brace_status );
-                                }                        
+                                    sprintf( statement + strlen( statement ), "}" );
+                                }
 
                                 if( node->right != nullptr )
                                 {
-                                    enum NeedBrace brace_status = NO_NEED;
-                                    OpenBrace( statement, node->right, &brace_status );
+                                    sprintf( statement + strlen( statement ), "{" );
                                     TexWrite( src, node->right, statement );
-                                    CloseBrace( statement, node, &brace_status );
+                                    sprintf( statement + strlen( statement ), "}" );
                                 }
 
                                 break;
                             }
+
                             default:
                             {
-                                printf( RED "No such operation\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__  );
+                                printf( RED "No such operation\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR,
+                                        __FILE__, __PRETTY_FUNCTION__, __LINE__  );
                                 exit(0);
                                 break;
                             }
@@ -170,15 +191,37 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
                         break;
                     }   
 
-                    //already binary
                     case MID:
                     {
+                        // --- Специальный случай для степени ---
+                        if( node->data.op == kDeg )
+                        {
+                            if( node->left != nullptr )
+                            {
+                                enum NeedBrace brace_status = NO_NEED;
+                                OpenBrace( statement, node, node->left, false, &brace_status );
+                                TexWrite( src, node->left, statement );
+                                CloseBrace( statement, &brace_status );
+                            }
+
+                            sprintf( statement + strlen( statement ), "^" );
+
+                            if( node->right != nullptr )
+                            {
+                                sprintf( statement + strlen( statement ), "{" );
+                                TexWrite( src, node->right, statement );
+                                sprintf( statement + strlen( statement ), "}" );
+                            }
+
+                            break;
+                        }
+
                         if( node->left != nullptr )
                         {
                             enum NeedBrace brace_status = NO_NEED;
-                            OpenBrace( statement, node->left, &brace_status );
+                            OpenBrace( statement, node, node->left, false, &brace_status );
                             TexWrite( src, node->left, statement );
-                            CloseBrace( statement, node, &brace_status );
+                            CloseBrace( statement, &brace_status );
                         }
 
                         sprintf( statement + strlen( statement ), "%s", op->name );
@@ -186,13 +229,14 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
                         if( node->right != nullptr )
                         {
                             enum NeedBrace brace_status = NO_NEED;
-                            OpenBrace( statement, node->right, &brace_status );
+                            OpenBrace( statement, node, node->right, true, &brace_status );
                             TexWrite( src, node->right, statement );
-                            CloseBrace( statement, node, &brace_status );
+                            CloseBrace( statement, &brace_status );
                         }
 
                         break;
                     }
+
                     default:
                     {
                         printf( RED "\n" DELETE_COLOR );
@@ -203,7 +247,8 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
             }
             else 
             {
-                printf(RED "No such operation\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__  );
+                printf(RED "No such operation\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR,
+                       __FILE__, __PRETTY_FUNCTION__, __LINE__  );
                 exit(0);
             }
 
@@ -241,53 +286,82 @@ struct OpNames* FindOperation( enum Operations op )
     return nullptr;
 }
 
-void OpenBrace( char* statement, Node_t* node, enum NeedBrace* status )
+void OpenBrace( char* statement, Node_t* parent, Node_t* child, bool is_right_child, enum NeedBrace* status )
 {
-    sprintf( statement + strlen( statement ), "{" );
-
-    DoesNeedBraces( node, status );
+    DoesNeedBraces( parent, child, is_right_child, status );
 
     if( *status == NEED ) 
     {
-        sprintf( statement + strlen( statement ), "{" );
+        sprintf( statement + strlen( statement ), "(" );
     }
 }
 
-void CloseBrace( char* statement, Node_t* node, enum NeedBrace* status )
+void CloseBrace( char* statement, enum NeedBrace* status )
 {
     if( *status == NEED ) 
     {
-        sprintf( statement + strlen( statement ), "}" );
+        sprintf( statement + strlen( statement ), ")" );
     }
-
-    sprintf( statement + strlen( statement ), "}" );
 }
 
-void DoesNeedBraces( Node_t* node, enum NeedBrace* status )  //Анализ ветки
+void DoesNeedBraces( Node_t* parent, Node_t* child, bool is_right_child, enum NeedBrace* status )
 {
-    switch( (int)node->type )
+    *status = NO_NEED;
+
+    if( parent == nullptr || child == nullptr )
+        return;
+
+    if( child->type != OP || parent->type != OP )
+        return;
+
+    enum Operations pop = parent->data.op;
+    enum Operations cop = child->data.op;
+
+    switch( pop )
     {
-        case NUM:
+        case kAdd:
         {
+            // a + (b + c)  -> не нужны
+            // a + (b - c)  -> не нужны
+            *status = NO_NEED;
             return;
-        }   
-
-        case VAR:
-        {
-            break;
         }
-        case OP:
+
+        case kSub:
         {
-            *status = NEED;
+            // a - (b + c), a - (b - c) -> нужны справа
+            if( is_right_child && (cop == kAdd || cop == kSub) )
+                *status = NEED;
+            return;
+        }
+
+        case kMul:
+        {
+            // a * (b + c), a * (b - c) -> нужны
+            if( cop == kAdd || cop == kSub )
+                *status = NEED;
+            return;
+        }
+
+        case kDiv:
+        {
+            // во \frac обычно внешние круглые не нужны
+            *status = NO_NEED;
+            return;
+        }
+
+        case kDeg:
+        {
+            // (a+b)^c -> нужны слева
+            // a^(b+c) -> справа всё равно пойдёт в {...}
+            if( !is_right_child && (cop == kAdd || cop == kSub || cop == kMul || cop == kDiv) )
+                *status = NEED;
             return;
         }
 
         default:
         {
-            printf(RED "Smth strange in\n file: %s\n func: %s\n line: %d\n" DELETE_COLOR, __FILE__, __PRETTY_FUNCTION__, __LINE__  );
-            break;
+            return;
         }
     }
-
-    return;
 }

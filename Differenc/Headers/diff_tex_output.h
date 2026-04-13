@@ -49,8 +49,8 @@ enum TexErrors TexWrite( struct FileOutput* src, Node_t* node, char* statement )
 
 struct OpNames* FindOperation( enum Operations op );
 
-void OpenBrace( char* statement, Node_t* node, enum NeedBrace* status );
-void CloseBrace( char* statement, Node_t* node, enum NeedBrace* status );
-void DoesNeedBraces( Node_t* node, enum NeedBrace* status );
+void OpenBrace( char* statement, Node_t* parent, Node_t* child, bool is_right_child, enum NeedBrace* status );
+void CloseBrace( char* statement, enum NeedBrace* status );
+void DoesNeedBraces( Node_t* parent, Node_t* child, bool is_right_child, enum NeedBrace* status );
 
 #endif
