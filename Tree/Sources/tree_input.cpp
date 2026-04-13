@@ -16,7 +16,7 @@ enum TreeErrors MakeTreeData( struct File_text* dump, struct File_text* file, st
     unsigned long int size_of_stream = (unsigned long int)file_info.st_size;
     file->stream_size = size_of_stream;
 
-    if( file->stream_size > 0 )
+    if( file->stream_size > 0 ) 
     {
         file->buffer = (char*)calloc( size_of_stream + 1, sizeof(char) );
         fseek(stream, sizeof(char) * 0L,  SEEK_SET);

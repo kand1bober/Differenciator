@@ -60,7 +60,7 @@ enum TexErrors TexOutput( struct Tree* origin_tree, struct Tree* diff_tree )
                                               "\\end{center}\n");
 
     sprintf( statement + strlen( statement ), "\\section{Вывод:}\n"
-                                              "Лень думать, я пошёл спать\n");
+                                              "Думайте.\n");
 
     fprintf( src.stream, "%s", statement );
 
@@ -84,7 +84,7 @@ enum TexErrors StertTexOutput( struct FileOutput* src )
     "\\documentclass[12pt, a4paper]{article}\n"
     "\\usepackage{amsmath}\n"
     "\\usepackage[russian]{babel}\n"
-    "\\title{Лабораторная работа на тему\nвзятия приозводной}\n"
+    "\\title{Лабораторная работа на тему\nвзятия производной}\n"
     "\\author{Вячеслав Курневич}\n"
     "\\date{Декабрь 2024}\n"
     "\\begin{document}\n"
@@ -249,7 +249,7 @@ void OpenBrace( char* statement, Node_t* node, enum NeedBrace* status )
 
     if( *status == NEED ) 
     {
-        sprintf( statement + strlen( statement ), "(" );
+        sprintf( statement + strlen( statement ), "{" );
     }
 }
 
@@ -257,7 +257,7 @@ void CloseBrace( char* statement, Node_t* node, enum NeedBrace* status )
 {
     if( *status == NEED ) 
     {
-        sprintf( statement + strlen( statement ), ")" );
+        sprintf( statement + strlen( statement ), "}" );
     }
 
     sprintf( statement + strlen( statement ), "}" );
